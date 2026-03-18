@@ -1,86 +1,92 @@
 import { useState, useRef, useEffect } from "react";
 
+/* ─── PARTY CONSTANTS ─── */
+const PARTIES = {hj:"HJ Team",lawrence:"Lawrence Group",oleary:"O'Leary",meyers:"Meyers+",landlord:"Landlord (CIM)",wesbuild:"Wesbuild",external:"External"};
+const PARTY_COLORS = {hj:"#7C3AED",lawrence:"#3B82F6",oleary:"#F59E0B",meyers:"#06B6D4",landlord:"#EF4444",wesbuild:"#22C55E",external:"#94A3B8"};
+const PARTY_BG = {hj:"#F5F3FF",lawrence:"#EFF6FF",oleary:"#FFFBEB",meyers:"#ECFEFF",landlord:"#FEF2F2",wesbuild:"#F0FDF4",external:"#F8FAFC"};
+
 /* ─── INITIAL DATA ─── */
 const initPhases = [
   {
     id:"p1", name:"AOR Drawing Development", color:"#7C3AED",
     start:"2025-11-01", end:"2026-04-15", status:"active", weeks:17.8, days:89,
     tasks:[
-      {id:"t1",text:"Survey",done:false,status:"in-progress",owner:"Lawrence Group",duration:""},
-      {id:"t2",text:"Pre-Design",done:false,status:"not-started",owner:"Lawrence Group",duration:"19d"},
-      {id:"t3",text:"Team Meeting",done:false,status:"not-started",owner:"Andrey + Lawrence",duration:"1w"},
-      {id:"t4",text:"SD — Schematic Design",done:false,status:"not-started",owner:"Lawrence Group",duration:"3w"},
-      {id:"t5",text:"Client Review",done:false,status:"overdue",owner:"Andrey / Iliyas",duration:"1w"},
-      {id:"t6",text:"Acoustic Site Visit and Report",done:true,status:"complete",owner:"Lawrence Group",duration:"8d"},
-      {id:"t7",text:"DD — Design Development",done:true,status:"complete",owner:"Lawrence Group",duration:"3w"},
-      {id:"t8",text:"Issue for Bid / Permit / Construction",done:false,status:"not-started",owner:"Lawrence Group",duration:"30d"},
+      {id:"t1",text:"Survey",done:false,status:"in-progress",owner:"Lawrence Group",duration:"",ballWith:"lawrence"},
+      {id:"t2",text:"Pre-Design",done:false,status:"not-started",owner:"Lawrence Group",duration:"19d",ballWith:"lawrence"},
+      {id:"t3",text:"Team Meeting",done:false,status:"not-started",owner:"Andrey + Lawrence",duration:"1w",ballWith:"hj"},
+      {id:"t4",text:"SD — Schematic Design",done:false,status:"not-started",owner:"Lawrence Group",duration:"3w",ballWith:"lawrence"},
+      {id:"t5",text:"Client Review",done:false,status:"overdue",owner:"Andrey / Iliyas",duration:"1w",ballWith:"hj"},
+      {id:"t6",text:"Acoustic Site Visit and Report",done:true,status:"complete",owner:"Lawrence Group",duration:"8d",ballWith:"lawrence"},
+      {id:"t7",text:"DD — Design Development",done:true,status:"complete",owner:"Lawrence Group",duration:"3w",ballWith:"lawrence"},
+      {id:"t8",text:"Issue for Bid / Permit / Construction",done:false,status:"not-started",owner:"Lawrence Group",duration:"30d",ballWith:"lawrence"},
     ]
   },
   {
     id:"p2", name:"Permitting & Bidding Phase", color:"#8B5CF6",
     start:"2026-04-01", end:"2026-06-05", status:"upcoming", weeks:4.2, days:21,
     tasks:[
-      {id:"t9",text:"Bid Set Drawings Issued to Wesbuild",done:false,status:"not-started",owner:"Lawrence Group",duration:"1d"},
-      {id:"t10",text:"Subcontractor Bids Received",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t11",text:"Cost Leveling / Negotiation",done:false,status:"not-started",owner:"Andrey + O'Leary",duration:"1w"},
-      {id:"t12",text:"GC Award / Mobilization",done:false,status:"not-started",owner:"Andrey",duration:"1w"},
-      {id:"t13",text:"Permitting Process (DOB filing)",done:false,status:"not-started",owner:"Lawrence Group",duration:"10d"},
-      {id:"t14",text:"DOB Review",done:false,status:"not-started",owner:"NYC DOB",duration:"2w"},
-      {id:"t15",text:"Permits Received",done:false,status:"not-started",owner:"Lawrence Group",duration:""},
+      {id:"t9",text:"Bid Set Drawings Issued to Wesbuild",done:false,status:"not-started",owner:"Lawrence Group",duration:"1d",ballWith:"lawrence"},
+      {id:"t10",text:"Subcontractor Bids Received",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t11",text:"Cost Leveling / Negotiation",done:false,status:"not-started",owner:"Andrey + O'Leary",duration:"1w",ballWith:"hj"},
+      {id:"t12",text:"GC Award / Mobilization",done:false,status:"not-started",owner:"Andrey",duration:"1w",ballWith:"hj"},
+      {id:"t13",text:"Permitting Process (DOB filing)",done:false,status:"not-started",owner:"Lawrence Group",duration:"10d",ballWith:"lawrence"},
+      {id:"t14",text:"DOB Review",done:false,status:"not-started",owner:"NYC DOB",duration:"2w",ballWith:"external"},
+      {id:"t15",text:"Permits Received",done:false,status:"not-started",owner:"Lawrence Group",duration:"",ballWith:"lawrence"},
     ]
   },
   {
     id:"p3", name:"Construction", color:"#A78BFA",
     start:"2026-06-05", end:"2026-11-15", status:"upcoming", weeks:26, days:130,
     tasks:[
-      {id:"t16",text:"Mobilization / Long Lead Item Release",done:false,status:"not-started",owner:"Wesbuild",duration:"20d"},
-      {id:"t17",text:"Demolition & site prep",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t18",text:"Concrete / Masonry / Structural",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t19",text:"MEP rough-in (HVAC, Plumbing, Electrical)",done:false,status:"not-started",owner:"Wesbuild / MEP",duration:""},
-      {id:"t20",text:"Drywall / Carpentry / Ceilings",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t21",text:"Ceramic, Stone & Flooring",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t22",text:"Acoustic spray soundproofing",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t23",text:"Painting & Decorative Finishes",done:false,status:"not-started",owner:"Wesbuild",duration:""},
-      {id:"t24",text:"On Site Construction (full scope)",done:false,status:"not-started",owner:"Wesbuild",duration:"26w"},
+      {id:"t16",text:"Mobilization / Long Lead Item Release",done:false,status:"not-started",owner:"Wesbuild",duration:"20d",ballWith:"wesbuild"},
+      {id:"t17",text:"Demolition & site prep",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t18",text:"Concrete / Masonry / Structural",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t19",text:"MEP rough-in (HVAC, Plumbing, Electrical)",done:false,status:"not-started",owner:"Wesbuild / MEP",duration:"",ballWith:"wesbuild"},
+      {id:"t20",text:"Drywall / Carpentry / Ceilings",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t21",text:"Ceramic, Stone & Flooring",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t22",text:"Acoustic spray soundproofing",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t23",text:"Painting & Decorative Finishes",done:false,status:"not-started",owner:"Wesbuild",duration:"",ballWith:"wesbuild"},
+      {id:"t24",text:"On Site Construction (full scope)",done:false,status:"not-started",owner:"Wesbuild",duration:"26w",ballWith:"wesbuild"},
     ]
   },
   {
     id:"p4", name:"Ops Setup & Opening", color:"#6D28D9",
     start:"2026-11-15", end:"2026-12-15", status:"upcoming", weeks:1.8, days:9,
     tasks:[
-      {id:"t25",text:"FF&E delivery & install (gym equipment)",done:false,status:"not-started",owner:"Equipment Vendor",duration:""},
-      {id:"t26",text:"AV / Light / Sound install",done:false,status:"not-started",owner:"AV Vendor",duration:""},
-      {id:"t27",text:"IT infrastructure & screens",done:false,status:"not-started",owner:"KZ Tech Team",duration:""},
-      {id:"t28",text:"Ops Turnover — Move-In / Set-Up",done:false,status:"not-started",owner:"Andrey",duration:"9d"},
-      {id:"t29",text:"DOB final inspection & TCO",done:false,status:"not-started",owner:"Lawrence Group",duration:""},
-      {id:"t30",text:"Staff hiring & training",done:false,status:"not-started",owner:"Fitness Director",duration:""},
-      {id:"t31",text:"Studio Opening / Opening Deadline",done:false,status:"not-started",owner:"Andrey + CMO",duration:""},
+      {id:"t25",text:"FF&E delivery & install (gym equipment)",done:false,status:"not-started",owner:"Equipment Vendor",duration:"",ballWith:"external"},
+      {id:"t26",text:"AV / Light / Sound install",done:false,status:"not-started",owner:"AV Vendor",duration:"",ballWith:"external"},
+      {id:"t27",text:"IT infrastructure & screens",done:false,status:"not-started",owner:"KZ Tech Team",duration:"",ballWith:"hj"},
+      {id:"t28",text:"Ops Turnover — Move-In / Set-Up",done:false,status:"not-started",owner:"Andrey",duration:"9d",ballWith:"hj"},
+      {id:"t29",text:"DOB final inspection & TCO",done:false,status:"not-started",owner:"Lawrence Group",duration:"",ballWith:"lawrence"},
+      {id:"t30",text:"Staff hiring & training",done:false,status:"not-started",owner:"Fitness Director",duration:"",ballWith:"hj"},
+      {id:"t31",text:"Studio Opening / Opening Deadline",done:false,status:"not-started",owner:"Andrey + CMO",duration:"",ballWith:"hj"},
     ]
   },
 ];
 
 const initVendors = [
-  {id:"v1",name:"O'Leary Group",role:"Construction Consultant",contact:"TBC",status:"active",risk:"low",lastUpdate:"Mar 2026",contract:"Engaged",notes:"Manages the Smartsheet construction timeline ('Hero's Journey Flatiron Schedule'). Andrey has view-only access. Key interface between HJ and all construction partners.",deliverables:["Smartsheet timeline management","Construction oversight","Vendor coordination"],nextAction:"Request automated Smartsheet email reports (daily/weekly)",dueDate:"2026-03-20",budget:0,spent:0},
-  {id:"v2",name:"Lawrence Group",role:"Architecture",contact:"TBC",status:"active",risk:"medium",lastUpdate:"Mar 2026",contract:"Signed",notes:"Leading NYC fitness architect. Equinox portfolio. Currently in AOR Drawing Development. Client Review flagged OVERDUE in Smartsheet. Blocks 30-day 'Issue for Bid' task.",deliverables:["AOR drawings","Bid set drawings","DOB permit filing","MEP coordination"],nextAction:"Resolve Client Review (OVERDUE) then Issue for Bid/Permit",dueDate:"2026-04-01",budget:280000,spent:60000},
+  {id:"v1",name:"O'Leary Group",role:"Construction Consultant",contact:"Samara Petigrow (samara@olearygroup.com)",status:"active",risk:"low",lastUpdate:"Mar 2026",contract:"Engaged",notes:"Manages the Smartsheet construction timeline ('Hero's Journey Flatiron Schedule'). Andrey has view-only access. Key interface between HJ and all construction partners.",deliverables:["Smartsheet timeline management","Construction oversight","Vendor coordination"],nextAction:"Request automated Smartsheet email reports (daily/weekly)",dueDate:"2026-03-20",budget:0,spent:0},
+  {id:"v2",name:"Lawrence Group",role:"Architecture",contact:"Matt Lundgren, Sean Trombly",status:"active",risk:"medium",lastUpdate:"Mar 2026",contract:"Signed",notes:"Leading NYC fitness architect. Equinox portfolio. Currently in AOR Drawing Development. Client Review flagged OVERDUE in Smartsheet. Blocks 30-day 'Issue for Bid' task.",deliverables:["AOR drawings","Bid set drawings","DOB permit filing","MEP coordination"],nextAction:"Resolve Client Review (OVERDUE) then Issue for Bid/Permit",dueDate:"2026-04-01",budget:280000,spent:60000},
   {id:"v3",name:"Wesbuild",role:"General Contractor",contact:"TBC",status:"standby",risk:"low",lastUpdate:"Mar 2026",contract:"Pending permit",notes:"Budget LOW: $5.12M / HIGH: $5.95M (before 20% contingency). On standby pending permit approval. Proven NYC fitness GC track record.",deliverables:["Full buildout","MEP rough-in","26-week construction","FF&E coordination"],nextAction:"Finalize GMP contract after bid drawings issued",dueDate:"2026-05-01",budget:5500000,spent:0},
   {id:"v4",name:"CIM Group",role:"Landlord",contact:"TBC",status:"active",risk:"medium",lastUpdate:"Mar 2026",contract:"Lease executed",notes:"Handover May 15 2026. 9-month rent-free. Pre-permit engineer coordination ongoing -- critical path item. One of largest US commercial landlords.",deliverables:["Engineer coordination pre-permit","Space handover May 15","9-month rent-free period"],nextAction:"Resolve open parameters with landlord engineers",dueDate:"2026-03-31",budget:0,spent:0},
   {id:"v5",name:"JPMorgan",role:"LOC Financing",contact:"TBC",status:"active",risk:"low",lastUpdate:"Feb 2026",contract:"In progress",notes:"$1.4M Letter of Credit personally guaranteed by Iliyas. Drawdown schedule needs alignment with Wesbuild payment milestones.",deliverables:["$1.4M LOC finalization","Drawdown schedule aligned to construction"],nextAction:"Confirm LOC drawdown schedule",dueDate:"2026-04-01",budget:1400000,spent:0},
   {id:"v6",name:"Gym Equipment Vendor",role:"Equipment / FF&E",contact:"TBD",status:"pending",risk:"high",lastUpdate:"--",contract:"Not signed",notes:"Budget $690K. Lead times 12-16 weeks. Must order by August 2026 for November delivery. No vendor shortlisted yet -- URGENT.",deliverables:["Resistance training equipment","HIIT equipment","Megaformers (Reshape room)","Assessment Center"],nextAction:"RFQ & vendor shortlist -- time sensitive",dueDate:"2026-06-01",budget:690000,spent:0},
   {id:"v7",name:"AV / Light / Sound",role:"AV & Lighting",contact:"TBD",status:"pending",risk:"medium",lastUpdate:"--",contract:"Not signed",notes:"Budget $230K. Critical for HJ in-studio experience. Must integrate with HJ proprietary app system. Coordinate with KZ tech team.",deliverables:["Zone sound systems","In-studio screens","Lighting per zone","HJ app integration"],nextAction:"Spec & RFQ -- coordinate with KZ tech team first",dueDate:"2026-06-01",budget:230000,spent:0},
   {id:"v8",name:"CBRE",role:"Real Estate",contact:"TBC",status:"done",risk:"low",lastUpdate:"Jan 2026",contract:"Completed",notes:"Lease at 225 5th executed. 19,451 rentable sq ft secured. Role complete for now.",deliverables:["Lease negotiation complete","225 Fifth secured"],nextAction:"Standby -- re-engage for future NYC locations",dueDate:"--",budget:0,spent:0},
+  {id:"v9",name:"Meyers+",role:"MEP Engineering",contact:"Nicholas Modugno",status:"active",risk:"low",lastUpdate:"Feb 2026",contract:"Engaged via Lawrence Group",notes:"Full MEP engineering team — HVAC, plumbing, electrical, fire protection. 7-person team actively coordinating with Lawrence Group on design development. Handling all mechanical responses and hot water/shower systems.",deliverables:["HVAC design & coordination","Plumbing systems","Electrical engineering","Fire protection","MEP coordination with landlord"],nextAction:"Complete MEP responses for SD drawings",dueDate:"2026-04-01",budget:0,spent:0},
 ];
 
 const initIssues = [
-  {id:"i1",title:"Client Review OVERDUE in Smartsheet",severity:"critical",owner:"Andrey / Lawrence Group",phase:"Design",due:"2026-03-15",open:true,notes:"Flagged red in O'Leary's Smartsheet. Blocks the 30-day 'Issue for Bid/Permit/Construction' task. Must be resolved immediately to protect April permit filing target."},
-  {id:"i2",title:"Landlord engineer coordination unresolved",severity:"critical",owner:"Andrey + CIM",phase:"Design",due:"2026-03-31",open:true,notes:"CIM Group engineer sign-off needed before DOB permit submission. Direct blocker on permit timeline."},
-  {id:"i3",title:"'Issue for Bid' not started -- 30 day task",severity:"high",owner:"Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"This 30-day task hasn't started. It follows Client Review and precedes DOB filing. Every day of delay pushes permit filing and construction start."},
-  {id:"i4",title:"Gym equipment vendor not selected",severity:"high",owner:"Andrey",phase:"Procurement",due:"2026-06-01",open:true,notes:"12-16 week lead times. Must place order by August 2026 for November delivery. No vendor even shortlisted yet."},
-  {id:"i5",title:"Useable SF unconfirmed (budget assumes 17,095)",severity:"medium",owner:"Andrey + Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"Budget PSF calculations based on 17,095 useable SF. Lease says 19,451 rentable. Actual useable needs field verification before finalizing construction scope."},
-  {id:"i6",title:"Decorative Metals -- $420K budget variance",severity:"medium",owner:"Andrey + O'Leary",phase:"Budget",due:"2026-04-15",open:true,notes:"LOW: $427K / HIGH: $847K -- single largest cost swing. Design decisions on metal features must be locked before budget can be confirmed."},
-  {id:"i7",title:"CMO not yet hired",severity:"medium",owner:"Iliyas / Andrey",phase:"Pre-Opening",due:"2026-07-01",open:true,notes:"Needed for US brand launch and pre-sales campaign. Interviews in progress."},
-  {id:"i8",title:"GMP contract with Wesbuild not signed",severity:"medium",owner:"Andrey + Gulnur",phase:"Construction",due:"2026-05-01",open:true,notes:"Pending bid drawings and permit. CLO Gulnur review required before execution."},
-  {id:"i9",title:"LOC drawdown schedule not confirmed",severity:"medium",owner:"Andrey + JPMorgan",phase:"Finance",due:"2026-04-01",open:true,notes:"$1.4M LOC drawdown must align with Wesbuild payment milestones. Not yet scheduled."},
-  {id:"i10",title:"AV/Sound vendor not scoped",severity:"low",owner:"Andrey + KZ Tech",phase:"Procurement",due:"2026-06-01",open:true,notes:"Must integrate with HJ proprietary app. Coordinate with Almaty tech team on spec before issuing RFQ."},
+  {id:"i1",title:"Client Review OVERDUE in Smartsheet",severity:"critical",owner:"Andrey / Lawrence Group",phase:"Design",due:"2026-03-15",open:true,notes:"Flagged red in O'Leary's Smartsheet. Blocks the 30-day 'Issue for Bid/Permit/Construction' task. Must be resolved immediately to protect April permit filing target.",ballWith:"hj"},
+  {id:"i2",title:"Landlord engineer coordination unresolved",severity:"critical",owner:"Andrey + CIM",phase:"Design",due:"2026-03-31",open:true,notes:"CIM Group engineer sign-off needed before DOB permit submission. Direct blocker on permit timeline.",ballWith:"landlord"},
+  {id:"i3",title:"'Issue for Bid' not started -- 30 day task",severity:"high",owner:"Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"This 30-day task hasn't started. It follows Client Review and precedes DOB filing. Every day of delay pushes permit filing and construction start.",ballWith:"lawrence"},
+  {id:"i4",title:"Gym equipment vendor not selected",severity:"high",owner:"Andrey",phase:"Procurement",due:"2026-06-01",open:true,notes:"12-16 week lead times. Must place order by August 2026 for November delivery. No vendor even shortlisted yet.",ballWith:"hj"},
+  {id:"i5",title:"Useable SF unconfirmed (budget assumes 17,095)",severity:"medium",owner:"Andrey + Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"Budget PSF calculations based on 17,095 useable SF. Lease says 19,451 rentable. Actual useable needs field verification before finalizing construction scope.",ballWith:"hj"},
+  {id:"i6",title:"Decorative Metals -- $420K budget variance",severity:"medium",owner:"Andrey + O'Leary",phase:"Budget",due:"2026-04-15",open:true,notes:"LOW: $427K / HIGH: $847K -- single largest cost swing. Design decisions on metal features must be locked before budget can be confirmed.",ballWith:"hj"},
+  {id:"i7",title:"CMO not yet hired",severity:"medium",owner:"Iliyas / Andrey",phase:"Pre-Opening",due:"2026-07-01",open:true,notes:"Needed for US brand launch and pre-sales campaign. Interviews in progress.",ballWith:"hj"},
+  {id:"i8",title:"GMP contract with Wesbuild not signed",severity:"medium",owner:"Andrey + Gulnur",phase:"Construction",due:"2026-05-01",open:true,notes:"Pending bid drawings and permit. CLO Gulnur review required before execution.",ballWith:"hj"},
+  {id:"i9",title:"LOC drawdown schedule not confirmed",severity:"medium",owner:"Andrey + JPMorgan",phase:"Finance",due:"2026-04-01",open:true,notes:"$1.4M LOC drawdown must align with Wesbuild payment milestones. Not yet scheduled.",ballWith:"hj"},
+  {id:"i10",title:"AV/Sound vendor not scoped",severity:"low",owner:"Andrey + KZ Tech",phase:"Procurement",due:"2026-06-01",open:true,notes:"Must integrate with HJ proprietary app. Coordinate with Almaty tech team on spec before issuing RFQ.",ballWith:"hj"},
 ];
 
 const budgetLines = [
@@ -154,20 +160,21 @@ function usePersistedState(key, defaultVal) {
    ═══════════════════════════════════════════ */
 export default function App(){
   const[tab,setTab]=usePersistedState("hj_tab","overview");
-  const[phases,setPhases]=usePersistedState("hj_phases",initPhases);
+  const[phases,setPhases]=usePersistedState("hj_phases_v2",initPhases);
   const[vendors]=useState(initVendors);
-  const[issues,setIssues]=usePersistedState("hj_issues",initIssues);
+  const[issues,setIssues]=usePersistedState("hj_issues_v2",initIssues);
   const[budget]=useState(budgetLines);
   const[selPhase,setSelPhase]=useState(null);
   const[selVendor,setSelVendor]=useState(null);
   const[selIssue,setSelIssue]=useState(null);
   const[issueFilter,setIssueFilter]=usePersistedState("hj_issueFilter","open");
+  const[ballFilter,setBallFilter]=usePersistedState("hj_ballFilter","all");
   const[budgetView,setBudgetView]=usePersistedState("hj_budgetView","low");
   const[logs,setLogs]=usePersistedState("hj_logs",[]);
   const[logText,setLogText]=useState("");
   const[logTag,setLogTag]=useState("general");
   const[showNewIssue,setShowNewIssue]=useState(false);
-  const[newIssue,setNewIssue]=useState({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:""});
+  const[newIssue,setNewIssue]=useState({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:"",ballWith:"hj"});
   const[chat,setChat]=usePersistedState("hj_chat",[{role:"assistant",content:"Construction Command Center online. All data loaded from O'Leary Smartsheet and Wesbuild estimates. Use the tabs above to review timeline, vendors, budget, issues, and daily log."}]);
   const[msg,setMsg]=useState("");
   const chatRef=useRef(null);
@@ -178,7 +185,7 @@ export default function App(){
   const toggleIssue=(id)=>setIssues(is=>is.map(i=>i.id===id?{...i,open:!i.open}:i));
   const addLog=()=>{if(!logText.trim())return;setLogs(prev=>[{id:genId(),date:dateStamp(),time:new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}),text:logText.trim(),tag:logTag},...prev]);setLogText("");};
   const deleteLog=(id)=>setLogs(prev=>prev.filter(l=>l.id!==id));
-  const addIssue=()=>{if(!newIssue.title.trim())return;setIssues(prev=>[...prev,{...newIssue,id:genId(),open:true}]);setNewIssue({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:""});setShowNewIssue(false);};
+  const addIssue=()=>{if(!newIssue.title.trim())return;setIssues(prev=>[...prev,{...newIssue,id:genId(),open:true}]);setNewIssue({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:"",ballWith:"hj"});setShowNewIssue(false);};
   const sendMsg=()=>{if(!msg.trim())return;const q=msg.trim();setMsg("");setChat(c=>[...c,{role:"user",content:q},{role:"assistant",content:"This is an offline command center -- all project data is in the tabs above. For AI-powered analysis, an API key integration can be added."}]);};
 
   /* Computed */
@@ -194,7 +201,30 @@ export default function App(){
   const daysToHandover=daysUntil("2026-05-15");
   const daysToPermit=daysUntil("2026-04-01");
   const daysToOpen=daysUntil("2026-12-15");
-  const filtIssues=issueFilter==="all"?issues:issueFilter==="open"?issues.filter(i=>i.open):issues.filter(i=>!i.open);
+
+  /* Ball tracker computed */
+  const incompleteTasks=allTasks.filter(t=>!t.done);
+  const ballItems=(bw)=>{
+    const matchTasks=incompleteTasks.filter(t=>t.ballWith===bw);
+    const matchIssues=openIssues.filter(i=>i.ballWith===bw);
+    return{tasks:matchTasks,issues:matchIssues,total:matchTasks.length+matchIssues.length};
+  };
+  const partnerKeys=["lawrence","oleary","meyers","wesbuild"];
+  const hjBall=ballItems("hj");
+  const partnerBall={
+    tasks:incompleteTasks.filter(t=>partnerKeys.includes(t.ballWith)),
+    issues:openIssues.filter(i=>partnerKeys.includes(i.ballWith)),
+    get total(){return this.tasks.length+this.issues.length;}
+  };
+  const landlordBall={
+    tasks:incompleteTasks.filter(t=>t.ballWith==="landlord"),
+    issues:openIssues.filter(i=>i.ballWith==="landlord"),
+    get total(){return this.tasks.length+this.issues.length;}
+  };
+
+  /* Filtered issues: status filter then ball filter */
+  const statusFiltered=issueFilter==="all"?issues:issueFilter==="open"?issues.filter(i=>i.open):issues.filter(i=>!i.open);
+  const filtIssues=ballFilter==="all"?statusFiltered:ballFilter==="hj"?statusFiltered.filter(i=>i.ballWith==="hj"):ballFilter==="partners"?statusFiltered.filter(i=>partnerKeys.includes(i.ballWith)):statusFiltered.filter(i=>i.ballWith==="landlord"||i.ballWith==="external");
   const logsByDate=logs.reduce((acc,l)=>{(acc[l.date]=acc[l.date]||[]).push(l);return acc;},{});
 
   const TABS=[
@@ -215,6 +245,21 @@ export default function App(){
   const inputS={background:"#F8FAFC",border:"1px solid #E2E8F0",borderRadius:8,padding:"8px 12px",color:"#1E293B",fontSize:13,fontFamily:"'Inter',sans-serif",width:"100%"};
   const btnPrimary={background:"#7C3AED",border:"none",borderRadius:8,padding:"8px 16px",color:"#fff",cursor:"pointer",fontSize:12,fontFamily:"'Inter',sans-serif",fontWeight:600};
   const pill=(active,color="#7C3AED")=>({background:active?`${color}10`:"#F8FAFC",border:`1px solid ${active?color:"#E2E8F0"}`,color:active?color:"#64748B",padding:"5px 14px",borderRadius:20,fontSize:12,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontWeight:500});
+
+  /* Ball with badge component */
+  const BallBadge=({bw})=>{
+    if(!bw)return null;
+    return <span style={{fontSize:10,fontWeight:600,color:PARTY_COLORS[bw],background:PARTY_BG[bw],padding:"2px 8px",borderRadius:10,border:`1px solid ${PARTY_COLORS[bw]}33`,whiteSpace:"nowrap"}}>{PARTIES[bw]}</span>;
+  };
+
+  /* Ball tracker item renderer */
+  const BallItem=({label,due,bw})=>(
+    <div style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid #F1F5F9",fontSize:12}}>
+      <div style={{width:6,height:6,borderRadius:"50%",background:PARTY_COLORS[bw]||"#94A3B8",flexShrink:0}}/>
+      <div style={{flex:1,color:"#1E293B",fontWeight:500,lineHeight:1.4}}>{label}</div>
+      {due&&due!=="--"&&<div style={{fontSize:10,color:"#94A3B8",whiteSpace:"nowrap",fontWeight:500}}>{due}</div>}
+    </div>
+  );
 
   return(
     <div style={{minHeight:"100vh",background:"#F5F3FF",color:"#1E293B",fontFamily:"'Inter','system-ui',sans-serif",fontSize:14}}>
@@ -240,6 +285,7 @@ export default function App(){
           .budget-hide{display:none!important}
           .tab-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
           .hdr-title{font-size:22px!important}
+          .ball-grid{grid-template-columns:1fr!important}
         }
       `}</style>
 
@@ -277,6 +323,32 @@ export default function App(){
         {/* ═══ OVERVIEW ═══ */}
         {tab==="overview"&&(
           <div className="fi">
+
+            {/* Ball Tracker */}
+            <div className="ball-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:16}}>
+              {[
+                {key:"hj",label:"Our Court (HJ)",color:PARTY_COLORS.hj,bg:PARTY_BG.hj,data:hjBall},
+                {key:"partners",label:"Partners",color:"#3B82F6",bg:"#EFF6FF",data:partnerBall},
+                {key:"landlord",label:"Landlord",color:PARTY_COLORS.landlord,bg:PARTY_BG.landlord,data:landlordBall},
+              ].map(col=>(
+                <div key={col.key} style={{...card,background:col.bg,border:`1px solid ${col.color}33`,padding:"14px 16px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                    <div style={{fontSize:12,fontWeight:700,color:col.color,letterSpacing:"0.03em"}}>{col.label}</div>
+                    <div style={{fontSize:20,fontWeight:900,color:col.color}}>{col.data.total}</div>
+                  </div>
+                  <div style={{maxHeight:200,overflowY:"auto"}}>
+                    {col.data.issues.map(i=>(
+                      <BallItem key={i.id} label={i.title} due={i.due} bw={i.ballWith}/>
+                    ))}
+                    {col.data.tasks.map(t=>(
+                      <BallItem key={t.id} label={t.text} due={null} bw={t.ballWith}/>
+                    ))}
+                    {col.data.total===0&&<div style={{fontSize:12,color:"#94A3B8",fontStyle:"italic",padding:"8px 0"}}>All clear</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
               {[{label:"GC Budget LOW",val:fmt$(totalLow),sub:`HIGH: ${fmt$(totalHigh)}`,c:"#7C3AED",bg:"linear-gradient(135deg,#7C3AED,#A78BFA)"},{label:"Spent to Date",val:fmt$(totalSpent),sub:`committed: ${fmt$(totalCommitted)}`,c:"#EF4444",bg:"linear-gradient(135deg,#EF4444,#F87171)"},{label:"Tasks Complete",val:`${doneTasks.length}/${allTasks.length}`,sub:`${overdueCount} overdue`,c:overdueCount?"#F97316":"#22C55E",bg:overdueCount?"linear-gradient(135deg,#F97316,#FB923C)":"linear-gradient(135deg,#22C55E,#4ADE80)"},{label:"Open Issues",val:openIssues.length,sub:`${critIssues.length} critical`,c:critIssues.length?"#EF4444":"#64748B",bg:critIssues.length?"linear-gradient(135deg,#EF4444,#F87171)":"linear-gradient(135deg,#64748B,#94A3B8)"}].map((s,i)=>(
                 <div key={i} style={{...card,background:s.bg,color:"#fff",border:"none"}}>
@@ -396,6 +468,7 @@ export default function App(){
                             <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                               <span style={{fontSize:13,fontWeight:t.done?400:600,color:t.done?"#94A3B8":t.status==="overdue"?"#991B1B":"#1E293B",textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
                               <span style={{fontSize:10,fontWeight:700,color:TSTATUS[t.status]?.color,background:`${TSTATUS[t.status]?.color}15`,padding:"2px 8px",borderRadius:10}}>{TSTATUS[t.status]?.label}</span>
+                              {t.ballWith&&<span style={{width:8,height:8,borderRadius:"50%",background:PARTY_COLORS[t.ballWith]||"#94A3B8",display:"inline-block",flexShrink:0}} title={PARTIES[t.ballWith]||t.ballWith}/>}
                               {t.duration&&<span style={{fontSize:10,color:"#94A3B8",fontWeight:500}}>{t.duration}</span>}
                             </div>
                             <div style={{fontSize:11,color:"#94A3B8",marginTop:3,fontWeight:500}}>Owner: {t.owner}</div>
@@ -451,6 +524,15 @@ export default function App(){
         {/* ═══ ISSUES ═══ */}
         {tab==="issues"&&(
           <div className="fi">
+            {/* Ball filter pills */}
+            <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
+              {[{k:"all",l:"All"},{k:"hj",l:"Our Court"},{k:"partners",l:"Partners"},{k:"landlord",l:"Landlord"}].map(f=>(
+                <button key={f.k} onClick={()=>setBallFilter(f.k)} style={pill(ballFilter===f.k,f.k==="hj"?PARTY_COLORS.hj:f.k==="partners"?"#3B82F6":f.k==="landlord"?PARTY_COLORS.landlord:"#7C3AED")}>
+                  {f.l}
+                </button>
+              ))}
+            </div>
+
             <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",justifyContent:"space-between"}}>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {["all","open","closed"].map(f=>(
@@ -469,7 +551,7 @@ export default function App(){
                 <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:12}}>NEW ISSUE</div>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
                   <input value={newIssue.title} onChange={e=>setNewIssue(p=>({...p,title:e.target.value}))} placeholder="Issue title..." style={inputS}/>
-                  <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                  <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
                     <select value={newIssue.severity} onChange={e=>setNewIssue(p=>({...p,severity:e.target.value}))} style={inputS}>
                       {["critical","high","medium","low"].map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
                     </select>
@@ -478,6 +560,9 @@ export default function App(){
                       {["Design","Procurement","Budget","Construction","Finance","Pre-Opening"].map(p=><option key={p} value={p}>{p}</option>)}
                     </select>
                     <input type="date" value={newIssue.due} onChange={e=>setNewIssue(p=>({...p,due:e.target.value}))} style={inputS}/>
+                    <select value={newIssue.ballWith} onChange={e=>setNewIssue(p=>({...p,ballWith:e.target.value}))} style={inputS}>
+                      {Object.entries(PARTIES).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+                    </select>
                   </div>
                   <textarea value={newIssue.notes} onChange={e=>setNewIssue(p=>({...p,notes:e.target.value}))} placeholder="Notes / context..." rows={2} style={{...inputS,resize:"vertical"}}/>
                   <button onClick={addIssue} disabled={!newIssue.title.trim()} style={{...btnPrimary,opacity:newIssue.title.trim()?1:.4,alignSelf:"flex-start"}}>Add Issue</button>
@@ -499,6 +584,7 @@ export default function App(){
                       </div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                      {issue.ballWith&&<BallBadge bw={issue.ballWith}/>}
                       <span style={{fontSize:10,fontWeight:700,color:s.text,background:s.badge,padding:"3px 8px",borderRadius:10}}>{issue.severity.toUpperCase()}</span>
                       <span style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>{issue.due}</span>
                     </div>
