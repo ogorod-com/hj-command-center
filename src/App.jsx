@@ -311,8 +311,8 @@ export default function App(){
               ))}
             </div>
             <div style={{display:"flex",gap:6,justifyContent:"flex-end",flexWrap:"wrap"}}>
-              {critIssues.length>0&&<div style={{background:"rgba(239,68,68,0.2)",backdropFilter:"blur(8px)",border:"1px solid rgba(239,68,68,0.4)",borderRadius:20,padding:"3px 10px",display:"inline-flex",alignItems:"center",gap:5,fontSize:11,fontWeight:600}}><div className="pulse" style={{width:6,height:6,borderRadius:"50%",background:"#FCA5A5"}}/><span style={{color:"#FEE2E2"}}>{critIssues.length} Critical</span></div>}
-              {overdueCount>0&&<div style={{background:"rgba(249,115,22,0.2)",border:"1px solid rgba(249,115,22,0.4)",borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:600,color:"#FFEDD5"}}>{overdueCount} Overdue</div>}
+              {critIssues.length>0&&<div onClick={()=>setTab("issues")} style={{background:"rgba(239,68,68,0.2)",backdropFilter:"blur(8px)",border:"1px solid rgba(239,68,68,0.4)",borderRadius:20,padding:"3px 10px",display:"inline-flex",alignItems:"center",gap:5,fontSize:11,fontWeight:600,cursor:"pointer"}}><div className="pulse" style={{width:6,height:6,borderRadius:"50%",background:"#FCA5A5"}}/><span style={{color:"#FEE2E2"}}>{critIssues.length} Critical</span></div>}
+              {overdueCount>0&&<div onClick={()=>setTab("timeline")} style={{background:"rgba(249,115,22,0.2)",border:"1px solid rgba(249,115,22,0.4)",borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:600,color:"#FFEDD5",cursor:"pointer"}}>{overdueCount} Overdue</div>}
             </div>
           </div>
         </div>
