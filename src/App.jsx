@@ -293,9 +293,7 @@ export default function App(){
       <div style={{background:"linear-gradient(135deg, #7C3AED 0%, #A78BFA 50%, #C4B5FD 100%)",padding:"20px 24px 0",borderRadius:"0 0 20px 20px",boxShadow:"0 4px 20px rgba(124,58,237,0.2)"}}>
         <div className="hr" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:14}}>
-            <div style={{width:44,height:44,borderRadius:10,background:"rgba(255,255,255,0.2)",backdropFilter:"blur(8px)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:"1px solid rgba(255,255,255,0.3)"}}>
-              <span style={{fontSize:22,fontWeight:900,fontStyle:"italic",color:"#fff",letterSpacing:"-0.05em",lineHeight:1}}>hj</span>
-            </div>
+            <img src="/hj-logo.png" alt="Hero's Journey" style={{height:44,width:"auto",flexShrink:0,filter:"brightness(0) invert(1)",opacity:0.95}}/>
             <div>
               <div className="hdr-title" style={{fontSize:28,fontWeight:900,color:"#fff",lineHeight:1,letterSpacing:"-0.02em"}}>225 Fifth Avenue</div>
               <div style={{fontSize:13,fontWeight:500,color:"rgba(255,255,255,0.7)",marginTop:4,letterSpacing:"0.05em"}}>NYC Flagship &middot; Construction Command Center &middot; 17,095 SF</div>
