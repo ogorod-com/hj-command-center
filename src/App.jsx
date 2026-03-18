@@ -669,10 +669,10 @@ export default function App(){
             </div>
             <div style={{...card,background:"linear-gradient(135deg,#F5F3FF,#EDE9FE)",border:"1px solid #DDD6FE",marginTop:14}}>
               <div style={{fontSize:11,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:10}}>FUNDING STATUS</div>
-              {[{l:"Cash on hand",v:"~$4,000,000",c:"#22C55E"},{l:"Bridge round raising",v:"$6,000,000",c:"#7C3AED"},{l:"LOC -- JPMorgan (Iliyas guarantee)",v:"$1,400,000",c:"#EAB308"}].map((f,i)=>(
+              {[{l:"Cash on hand",v:"$2,000,000",c:"#22C55E"},{l:"Bridge round raising",v:"$6,000,000",c:"#7C3AED"},{l:"LOC -- JPMorgan (Iliyas guarantee)",v:"$1,400,000",c:"#EAB308"}].map((f,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #DDD6FE"}}><span style={{fontSize:13,color:"#475569",fontWeight:500}}>{f.l}</span><span style={{fontSize:13,color:f.c,fontWeight:700}}>{f.v}</span></div>
               ))}
-              <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 0"}}><span style={{fontSize:14,color:"#7C3AED",fontWeight:700}}>Total available</span><span style={{fontSize:20,fontWeight:900,color:"#7C3AED"}}>~$11,400,000</span></div>
+              <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 0"}}><span style={{fontSize:14,color:"#7C3AED",fontWeight:700}}>Total available</span><span style={{fontSize:20,fontWeight:900,color:"#7C3AED"}}>~$9,400,000</span></div>
             </div>
           </div>
         )}
