@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -fsSL https://fnm.vercel.app/install)",
+      "Bash(bash)",
+      "Bash(curl -fsSL https://nodejs.org/dist/v22.15.0/node-v22.15.0-darwin-arm64.tar.xz -o /tmp/node.tar.xz)",
+      "Bash(export PATH=\"$HOME/local/bin:$PATH\")",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(npm create vite@latest . -- --template react)",
+      "Bash(npm install)",
+      "Bash(npm run build)",
+      "Bash(gh auth status)",
+      "Bash(git --version)",
+      "Bash(gh auth login --web)",
+      "Bash(gh auth:*)",
+      "Bash(export PATH=\"/Users/ogo/local/bin:$PATH\")",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
