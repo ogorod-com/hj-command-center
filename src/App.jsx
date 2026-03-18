@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 /* ─── INITIAL DATA ─── */
 const initPhases = [
   {
-    id:"p1", name:"AOR Drawing Development", color:"#f59e0b",
+    id:"p1", name:"AOR Drawing Development", color:"#7C3AED",
     start:"2025-11-01", end:"2026-04-15", status:"active", weeks:17.8, days:89,
     tasks:[
       {id:"t1",text:"Survey",done:false,status:"in-progress",owner:"Lawrence Group",duration:""},
@@ -17,7 +17,7 @@ const initPhases = [
     ]
   },
   {
-    id:"p2", name:"Permitting & Bidding Phase", color:"#3b82f6",
+    id:"p2", name:"Permitting & Bidding Phase", color:"#8B5CF6",
     start:"2026-04-01", end:"2026-06-05", status:"upcoming", weeks:4.2, days:21,
     tasks:[
       {id:"t9",text:"Bid Set Drawings Issued to Wesbuild",done:false,status:"not-started",owner:"Lawrence Group",duration:"1d"},
@@ -30,7 +30,7 @@ const initPhases = [
     ]
   },
   {
-    id:"p3", name:"Construction", color:"#ef4444",
+    id:"p3", name:"Construction", color:"#A78BFA",
     start:"2026-06-05", end:"2026-11-15", status:"upcoming", weeks:26, days:130,
     tasks:[
       {id:"t16",text:"Mobilization / Long Lead Item Release",done:false,status:"not-started",owner:"Wesbuild",duration:"20d"},
@@ -45,7 +45,7 @@ const initPhases = [
     ]
   },
   {
-    id:"p4", name:"Ops Setup & Opening", color:"#10b981",
+    id:"p4", name:"Ops Setup & Opening", color:"#6D28D9",
     start:"2026-11-15", end:"2026-12-15", status:"upcoming", weeks:1.8, days:9,
     tasks:[
       {id:"t25",text:"FF&E delivery & install (gym equipment)",done:false,status:"not-started",owner:"Equipment Vendor",duration:""},
@@ -63,20 +63,20 @@ const initVendors = [
   {id:"v1",name:"O'Leary Group",role:"Construction Consultant",contact:"TBC",status:"active",risk:"low",lastUpdate:"Mar 2026",contract:"Engaged",notes:"Manages the Smartsheet construction timeline ('Hero's Journey Flatiron Schedule'). Andrey has view-only access. Key interface between HJ and all construction partners.",deliverables:["Smartsheet timeline management","Construction oversight","Vendor coordination"],nextAction:"Request automated Smartsheet email reports (daily/weekly)",dueDate:"2026-03-20",budget:0,spent:0},
   {id:"v2",name:"Lawrence Group",role:"Architecture",contact:"TBC",status:"active",risk:"medium",lastUpdate:"Mar 2026",contract:"Signed",notes:"Leading NYC fitness architect. Equinox portfolio. Currently in AOR Drawing Development. Client Review flagged OVERDUE in Smartsheet. Blocks 30-day 'Issue for Bid' task.",deliverables:["AOR drawings","Bid set drawings","DOB permit filing","MEP coordination"],nextAction:"Resolve Client Review (OVERDUE) then Issue for Bid/Permit",dueDate:"2026-04-01",budget:280000,spent:60000},
   {id:"v3",name:"Wesbuild",role:"General Contractor",contact:"TBC",status:"standby",risk:"low",lastUpdate:"Mar 2026",contract:"Pending permit",notes:"Budget LOW: $5.12M / HIGH: $5.95M (before 20% contingency). On standby pending permit approval. Proven NYC fitness GC track record.",deliverables:["Full buildout","MEP rough-in","26-week construction","FF&E coordination"],nextAction:"Finalize GMP contract after bid drawings issued",dueDate:"2026-05-01",budget:5500000,spent:0},
-  {id:"v4",name:"CIM Group",role:"Landlord",contact:"TBC",status:"active",risk:"medium",lastUpdate:"Mar 2026",contract:"Lease executed",notes:"Handover May 15 2026. 9-month rent-free. Pre-permit engineer coordination ongoing — critical path item. One of largest US commercial landlords.",deliverables:["Engineer coordination pre-permit","Space handover May 15","9-month rent-free period"],nextAction:"Resolve open parameters with landlord engineers",dueDate:"2026-03-31",budget:0,spent:0},
+  {id:"v4",name:"CIM Group",role:"Landlord",contact:"TBC",status:"active",risk:"medium",lastUpdate:"Mar 2026",contract:"Lease executed",notes:"Handover May 15 2026. 9-month rent-free. Pre-permit engineer coordination ongoing -- critical path item. One of largest US commercial landlords.",deliverables:["Engineer coordination pre-permit","Space handover May 15","9-month rent-free period"],nextAction:"Resolve open parameters with landlord engineers",dueDate:"2026-03-31",budget:0,spent:0},
   {id:"v5",name:"JPMorgan",role:"LOC Financing",contact:"TBC",status:"active",risk:"low",lastUpdate:"Feb 2026",contract:"In progress",notes:"$1.4M Letter of Credit personally guaranteed by Iliyas. Drawdown schedule needs alignment with Wesbuild payment milestones.",deliverables:["$1.4M LOC finalization","Drawdown schedule aligned to construction"],nextAction:"Confirm LOC drawdown schedule",dueDate:"2026-04-01",budget:1400000,spent:0},
-  {id:"v6",name:"Gym Equipment Vendor",role:"Equipment / FF&E",contact:"TBD",status:"pending",risk:"high",lastUpdate:"—",contract:"Not signed",notes:"Budget $690K. Lead times 12-16 weeks. Must order by August 2026 for November delivery. No vendor shortlisted yet — URGENT.",deliverables:["Resistance training equipment","HIIT equipment","Megaformers (Reshape room)","Assessment Center"],nextAction:"RFQ & vendor shortlist — time sensitive",dueDate:"2026-06-01",budget:690000,spent:0},
-  {id:"v7",name:"AV / Light / Sound",role:"AV & Lighting",contact:"TBD",status:"pending",risk:"medium",lastUpdate:"—",contract:"Not signed",notes:"Budget $230K. Critical for HJ in-studio experience. Must integrate with HJ proprietary app system. Coordinate with KZ tech team.",deliverables:["Zone sound systems","In-studio screens","Lighting per zone","HJ app integration"],nextAction:"Spec & RFQ — coordinate with KZ tech team first",dueDate:"2026-06-01",budget:230000,spent:0},
-  {id:"v8",name:"CBRE",role:"Real Estate",contact:"TBC",status:"done",risk:"low",lastUpdate:"Jan 2026",contract:"Completed",notes:"Lease at 225 5th executed. 19,451 rentable sq ft secured. Role complete for now.",deliverables:["Lease negotiation complete","225 Fifth secured"],nextAction:"Standby — re-engage for future NYC locations",dueDate:"—",budget:0,spent:0},
+  {id:"v6",name:"Gym Equipment Vendor",role:"Equipment / FF&E",contact:"TBD",status:"pending",risk:"high",lastUpdate:"--",contract:"Not signed",notes:"Budget $690K. Lead times 12-16 weeks. Must order by August 2026 for November delivery. No vendor shortlisted yet -- URGENT.",deliverables:["Resistance training equipment","HIIT equipment","Megaformers (Reshape room)","Assessment Center"],nextAction:"RFQ & vendor shortlist -- time sensitive",dueDate:"2026-06-01",budget:690000,spent:0},
+  {id:"v7",name:"AV / Light / Sound",role:"AV & Lighting",contact:"TBD",status:"pending",risk:"medium",lastUpdate:"--",contract:"Not signed",notes:"Budget $230K. Critical for HJ in-studio experience. Must integrate with HJ proprietary app system. Coordinate with KZ tech team.",deliverables:["Zone sound systems","In-studio screens","Lighting per zone","HJ app integration"],nextAction:"Spec & RFQ -- coordinate with KZ tech team first",dueDate:"2026-06-01",budget:230000,spent:0},
+  {id:"v8",name:"CBRE",role:"Real Estate",contact:"TBC",status:"done",risk:"low",lastUpdate:"Jan 2026",contract:"Completed",notes:"Lease at 225 5th executed. 19,451 rentable sq ft secured. Role complete for now.",deliverables:["Lease negotiation complete","225 Fifth secured"],nextAction:"Standby -- re-engage for future NYC locations",dueDate:"--",budget:0,spent:0},
 ];
 
 const initIssues = [
   {id:"i1",title:"Client Review OVERDUE in Smartsheet",severity:"critical",owner:"Andrey / Lawrence Group",phase:"Design",due:"2026-03-15",open:true,notes:"Flagged red in O'Leary's Smartsheet. Blocks the 30-day 'Issue for Bid/Permit/Construction' task. Must be resolved immediately to protect April permit filing target."},
   {id:"i2",title:"Landlord engineer coordination unresolved",severity:"critical",owner:"Andrey + CIM",phase:"Design",due:"2026-03-31",open:true,notes:"CIM Group engineer sign-off needed before DOB permit submission. Direct blocker on permit timeline."},
-  {id:"i3",title:"'Issue for Bid' not started — 30 day task",severity:"high",owner:"Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"This 30-day task hasn't started. It follows Client Review and precedes DOB filing. Every day of delay pushes permit filing and construction start."},
+  {id:"i3",title:"'Issue for Bid' not started -- 30 day task",severity:"high",owner:"Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"This 30-day task hasn't started. It follows Client Review and precedes DOB filing. Every day of delay pushes permit filing and construction start."},
   {id:"i4",title:"Gym equipment vendor not selected",severity:"high",owner:"Andrey",phase:"Procurement",due:"2026-06-01",open:true,notes:"12-16 week lead times. Must place order by August 2026 for November delivery. No vendor even shortlisted yet."},
   {id:"i5",title:"Useable SF unconfirmed (budget assumes 17,095)",severity:"medium",owner:"Andrey + Lawrence Group",phase:"Design",due:"2026-04-01",open:true,notes:"Budget PSF calculations based on 17,095 useable SF. Lease says 19,451 rentable. Actual useable needs field verification before finalizing construction scope."},
-  {id:"i6",title:"Decorative Metals — $420K budget variance",severity:"medium",owner:"Andrey + O'Leary",phase:"Budget",due:"2026-04-15",open:true,notes:"LOW: $427K / HIGH: $847K — single largest cost swing. Design decisions on metal features must be locked before budget can be confirmed."},
+  {id:"i6",title:"Decorative Metals -- $420K budget variance",severity:"medium",owner:"Andrey + O'Leary",phase:"Budget",due:"2026-04-15",open:true,notes:"LOW: $427K / HIGH: $847K -- single largest cost swing. Design decisions on metal features must be locked before budget can be confirmed."},
   {id:"i7",title:"CMO not yet hired",severity:"medium",owner:"Iliyas / Andrey",phase:"Pre-Opening",due:"2026-07-01",open:true,notes:"Needed for US brand launch and pre-sales campaign. Interviews in progress."},
   {id:"i8",title:"GMP contract with Wesbuild not signed",severity:"medium",owner:"Andrey + Gulnur",phase:"Construction",due:"2026-05-01",open:true,notes:"Pending bid drawings and permit. CLO Gulnur review required before execution."},
   {id:"i9",title:"LOC drawdown schedule not confirmed",severity:"medium",owner:"Andrey + JPMorgan",phase:"Finance",due:"2026-04-01",open:true,notes:"$1.4M LOC drawdown must align with Wesbuild payment milestones. Not yet scheduled."},
@@ -118,17 +118,22 @@ const budgetLines = [
 ];
 
 /* ─── HELPERS ─── */
-function daysUntil(d){if(!d||d==="—")return null;return Math.ceil((new Date(d)-new Date())/86400000);}
+function daysUntil(d){if(!d||d==="--")return null;return Math.ceil((new Date(d)-new Date())/86400000);}
 function fmt$(n){if(n>=1000000)return`$${(n/1000000).toFixed(2)}M`;if(n>=1000)return`$${(n/1000).toFixed(0)}K`;return`$${n}`;}
 function pct(a,b){return b>0?Math.round((a/b)*100):0;}
 function dateStamp(){return new Date().toISOString().split("T")[0];}
 function genId(){return "id_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);}
 
-/* ─── STYLE MAPS ─── */
-const SEV={critical:{bg:"#450a0a",border:"#dc2626",text:"#fca5a5",dot:"#ef4444"},high:{bg:"#431407",border:"#ea580c",text:"#fdba74",dot:"#f97316"},medium:{bg:"#1c1917",border:"#ca8a04",text:"#fde047",dot:"#eab308"},low:{bg:"#0f172a",border:"#475569",text:"#94a3b8",dot:"#64748b"}};
-const VSTATUS={active:{color:"#22c55e",label:"ACTIVE"},standby:{color:"#eab308",label:"STANDBY"},pending:{color:"#f97316",label:"PENDING"},done:{color:"#475569",label:"DONE"}};
-const PRISK={low:{color:"#22c55e"},medium:{color:"#eab308"},high:{color:"#ef4444"}};
-const TSTATUS={"complete":{color:"#22c55e",label:"DONE"},"in-progress":{color:"#3b82f6",label:"IN PROG"},"not-started":{color:"#374151",label:"NOT STARTED"},"overdue":{color:"#ef4444",label:"OVERDUE"}};
+/* ─── STYLE MAPS (HJ Brand) ─── */
+const SEV={
+  critical:{bg:"#FEF2F2",border:"#EF4444",text:"#991B1B",dot:"#EF4444",badge:"#FEE2E2"},
+  high:{bg:"#FFF7ED",border:"#F97316",text:"#9A3412",dot:"#F97316",badge:"#FFEDD5"},
+  medium:{bg:"#FFFBEB",border:"#EAB308",text:"#854D0E",dot:"#EAB308",badge:"#FEF3C7"},
+  low:{bg:"#F8FAFC",border:"#94A3B8",text:"#475569",dot:"#94A3B8",badge:"#F1F5F9"}
+};
+const VSTATUS={active:{color:"#7C3AED",label:"ACTIVE"},standby:{color:"#EAB308",label:"STANDBY"},pending:{color:"#F97316",label:"PENDING"},done:{color:"#94A3B8",label:"DONE"}};
+const PRISK={low:{color:"#22C55E"},medium:{color:"#EAB308"},high:{color:"#EF4444"}};
+const TSTATUS={"complete":{color:"#22C55E",label:"DONE"},"in-progress":{color:"#7C3AED",label:"IN PROG"},"not-started":{color:"#CBD5E1",label:"NOT STARTED"},"overdue":{color:"#EF4444",label:"OVERDUE"}};
 
 /* ─── localStorage HOOK ─── */
 function usePersistedState(key, defaultVal) {
@@ -144,9 +149,9 @@ function usePersistedState(key, defaultVal) {
   return [state, setState];
 }
 
-/* ═══════════════════════════════════════════════════════
-   APP
-   ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   APP — HJ Brand Design
+   ═══════════════════════════════════════════ */
 export default function App(){
   const[tab,setTab]=usePersistedState("hj_tab","overview");
   const[phases,setPhases]=usePersistedState("hj_phases",initPhases);
@@ -158,17 +163,11 @@ export default function App(){
   const[selIssue,setSelIssue]=useState(null);
   const[issueFilter,setIssueFilter]=usePersistedState("hj_issueFilter","open");
   const[budgetView,setBudgetView]=usePersistedState("hj_budgetView","low");
-
-  /* Daily Log */
   const[logs,setLogs]=usePersistedState("hj_logs",[]);
   const[logText,setLogText]=useState("");
   const[logTag,setLogTag]=useState("general");
-
-  /* Inline Issue Creation */
   const[showNewIssue,setShowNewIssue]=useState(false);
   const[newIssue,setNewIssue]=useState({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:""});
-
-  /* Chat (offline — displays project data without API) */
   const[chat,setChat]=usePersistedState("hj_chat",[{role:"assistant",content:"Construction Command Center online. All data loaded from O'Leary Smartsheet and Wesbuild estimates. Use the tabs above to review timeline, vendors, budget, issues, and daily log."}]);
   const[msg,setMsg]=useState("");
   const chatRef=useRef(null);
@@ -177,29 +176,12 @@ export default function App(){
 
   const toggleTask=(pid,tid)=>setPhases(ps=>ps.map(p=>p.id===pid?{...p,tasks:p.tasks.map(t=>t.id===tid?{...t,done:!t.done,status:!t.done?"complete":"not-started"}:t)}:p));
   const toggleIssue=(id)=>setIssues(is=>is.map(i=>i.id===id?{...i,open:!i.open}:i));
-
-  const addLog=()=>{
-    if(!logText.trim())return;
-    setLogs(prev=>[{id:genId(),date:dateStamp(),time:new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}),text:logText.trim(),tag:logTag},...prev]);
-    setLogText("");
-  };
-
+  const addLog=()=>{if(!logText.trim())return;setLogs(prev=>[{id:genId(),date:dateStamp(),time:new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}),text:logText.trim(),tag:logTag},...prev]);setLogText("");};
   const deleteLog=(id)=>setLogs(prev=>prev.filter(l=>l.id!==id));
+  const addIssue=()=>{if(!newIssue.title.trim())return;setIssues(prev=>[...prev,{...newIssue,id:genId(),open:true}]);setNewIssue({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:""});setShowNewIssue(false);};
+  const sendMsg=()=>{if(!msg.trim())return;const q=msg.trim();setMsg("");setChat(c=>[...c,{role:"user",content:q},{role:"assistant",content:"This is an offline command center -- all project data is in the tabs above. For AI-powered analysis, an API key integration can be added."}]);};
 
-  const addIssue=()=>{
-    if(!newIssue.title.trim())return;
-    setIssues(prev=>[...prev,{...newIssue,id:genId(),open:true}]);
-    setNewIssue({title:"",severity:"medium",owner:"",phase:"Design",due:"",notes:""});
-    setShowNewIssue(false);
-  };
-
-  const sendMsg=()=>{
-    if(!msg.trim())return;
-    const q=msg.trim();setMsg("");
-    setChat(c=>[...c,{role:"user",content:q},{role:"assistant",content:"This is an offline command center — all project data is in the tabs above. For AI-powered analysis, an API key integration can be added."}]);
-  };
-
-  /* ─── COMPUTED ─── */
+  /* Computed */
   const totalLow=budget.reduce((s,b)=>s+b.low,0);
   const totalHigh=budget.reduce((s,b)=>s+b.high,0);
   const totalSpent=budget.reduce((s,b)=>s+b.spent,0);
@@ -226,109 +208,115 @@ export default function App(){
   ];
 
   const LOG_TAGS=["general","decision","blocker","call","site-visit","finance"];
-  const TAG_COLORS={general:"#6b7280",decision:"#3b82f6",blocker:"#ef4444",call:"#8b5cf6","site-visit":"#10b981",finance:"#eab308"};
-  const inputStyle={background:"#111418",border:"1px solid #1a1f26",borderRadius:3,padding:"6px 10px",color:"#d4c9a8",fontSize:11,fontFamily:"'DM Mono',monospace",width:"100%"};
-  const btnAmber={background:"#92400e",border:"none",borderRadius:3,padding:"6px 14px",color:"#fde68a",cursor:"pointer",fontSize:10,fontFamily:"'DM Mono',monospace",letterSpacing:1};
+  const TAG_COLORS={general:"#64748B",decision:"#7C3AED",blocker:"#EF4444",call:"#8B5CF6","site-visit":"#22C55E",finance:"#EAB308"};
+
+  /* Shared styles */
+  const card={background:"#fff",borderRadius:12,border:"1px solid #E2E8F0",padding:"16px 20px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"};
+  const inputS={background:"#F8FAFC",border:"1px solid #E2E8F0",borderRadius:8,padding:"8px 12px",color:"#1E293B",fontSize:13,fontFamily:"'Inter',sans-serif",width:"100%"};
+  const btnPrimary={background:"#7C3AED",border:"none",borderRadius:8,padding:"8px 16px",color:"#fff",cursor:"pointer",fontSize:12,fontFamily:"'Inter',sans-serif",fontWeight:600};
+  const pill=(active,color="#7C3AED")=>({background:active?`${color}10`:"#F8FAFC",border:`1px solid ${active?color:"#E2E8F0"}`,color:active?color:"#64748B",padding:"5px 14px",borderRadius:20,fontSize:12,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontWeight:500});
 
   return(
-    <div style={{minHeight:"100vh",background:"#080a0d",color:"#d4c9a8",fontFamily:"'DM Mono','Courier New',monospace",fontSize:13}}>
+    <div style={{minHeight:"100vh",background:"#F5F3FF",color:"#1E293B",fontFamily:"'Inter','system-ui',sans-serif",fontSize:14}}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#080a0d}
-        ::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:#0d0f12}::-webkit-scrollbar-thumb{background:#f59e0b44;border-radius:2px}
-        .rh:hover{background:#0d1117 !important;cursor:pointer}
-        .tb:hover{color:#f59e0b !important}
-        textarea:focus,input:focus,select:focus{outline:none;border-color:#f59e0b66 !important}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.fi{animation:fadeUp .25s ease}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}.bl{animation:blink 1.2s infinite}
+        body{background:#F5F3FF}
+        ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:#F1F5F9}::-webkit-scrollbar-thumb{background:#C4B5FD;border-radius:4px}
+        .card-hover:hover{box-shadow:0 4px 12px rgba(124,58,237,0.1);border-color:#C4B5FD !important;cursor:pointer}
+        textarea:focus,input:focus,select:focus{outline:none;border-color:#7C3AED !important;box-shadow:0 0 0 3px rgba(124,58,237,0.1)}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.fi{animation:fadeUp .3s ease}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}.pulse{animation:pulse 1.5s infinite}
         .pb{transition:width .4s ease}
+        button{transition:all .15s ease}
+        button:hover{opacity:.9}
         @media(max-width:640px){
           .g4{grid-template-columns:repeat(2,1fr)!important}
           .g3{grid-template-columns:repeat(2,1fr)!important}
           .g2{grid-template-columns:1fr!important}
-          .hr{flex-direction:column!important;gap:10px!important}
+          .hr{flex-direction:column!important;gap:12px!important}
           .cr{justify-content:flex-start!important}
           .budget-grid{grid-template-columns:2fr 1fr 60px!important}
           .budget-hide{display:none!important}
           .tab-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+          .hdr-title{font-size:22px!important}
         }
       `}</style>
 
       {/* ═══ HEADER ═══ */}
-      <div style={{background:"#0d0f12",borderBottom:"1px solid #1a1f26",padding:"14px 20px 0"}}>
-        <div className="hr" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
+      <div style={{background:"linear-gradient(135deg, #7C3AED 0%, #A78BFA 50%, #C4B5FD 100%)",padding:"20px 24px 0",borderRadius:"0 0 20px 20px",boxShadow:"0 4px 20px rgba(124,58,237,0.2)"}}>
+        <div className="hr" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
           <div>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:3,color:"#f59e0b",lineHeight:1}}>225 FIFTH AVENUE</div>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:13,letterSpacing:3,color:"#6b7280"}}>NYC FLAGSHIP · CONSTRUCTION COMMAND · 17,095 USEABLE SF</div>
+            <div className="hdr-title" style={{fontSize:28,fontWeight:900,color:"#fff",lineHeight:1,letterSpacing:"-0.02em"}}>225 Fifth Avenue</div>
+            <div style={{fontSize:13,fontWeight:500,color:"rgba(255,255,255,0.7)",marginTop:4,letterSpacing:"0.05em"}}>NYC Flagship &middot; Construction Command Center &middot; 17,095 SF</div>
           </div>
           <div>
-            <div className="cr" style={{display:"flex",gap:16,justifyContent:"flex-end",marginBottom:6}}>
-              {[{v:daysToPermit,l:"DAYS TO PERMIT",w:daysToPermit<30},{v:daysToHandover,l:"DAYS TO HANDOVER",w:false},{v:daysToOpen,l:"DAYS TO SOFT OPEN",w:false}].map((d,i)=>(
+            <div className="cr" style={{display:"flex",gap:20,justifyContent:"flex-end",marginBottom:8}}>
+              {[{v:daysToPermit,l:"PERMIT",w:daysToPermit<30},{v:daysToHandover,l:"HANDOVER",w:false},{v:daysToOpen,l:"SOFT OPEN",w:false}].map((d,i)=>(
                 <div key={i} style={{textAlign:"center"}}>
-                  <div style={{fontFamily:"'Bebas Neue'",fontSize:22,color:d.w?"#ef4444":"#f59e0b"}}>{d.v}</div>
-                  <div style={{fontSize:9,color:"#4b5563",letterSpacing:1}}>{d.l}</div>
+                  <div style={{fontSize:24,fontWeight:800,color:d.w?"#FDE68A":"#fff"}}>{d.v}</div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.6)",letterSpacing:"0.1em",fontWeight:600}}>{d.l}</div>
                 </div>
               ))}
             </div>
             <div style={{display:"flex",gap:6,justifyContent:"flex-end",flexWrap:"wrap"}}>
-              {critIssues.length>0&&<div style={{background:"#450a0a",border:"1px solid #dc2626",borderRadius:3,padding:"2px 8px",display:"inline-flex",alignItems:"center",gap:5,fontSize:10}}><div className="bl" style={{width:6,height:6,borderRadius:"50%",background:"#ef4444"}}/><span style={{color:"#fca5a5"}}>{critIssues.length} CRITICAL</span></div>}
-              {overdueCount>0&&<div style={{background:"#1a0000",border:"1px solid #f9731644",borderRadius:3,padding:"2px 8px",fontSize:10,color:"#f97316"}}>{overdueCount} OVERDUE</div>}
+              {critIssues.length>0&&<div style={{background:"rgba(239,68,68,0.2)",backdropFilter:"blur(8px)",border:"1px solid rgba(239,68,68,0.4)",borderRadius:20,padding:"3px 10px",display:"inline-flex",alignItems:"center",gap:5,fontSize:11,fontWeight:600}}><div className="pulse" style={{width:6,height:6,borderRadius:"50%",background:"#FCA5A5"}}/><span style={{color:"#FEE2E2"}}>{critIssues.length} Critical</span></div>}
+              {overdueCount>0&&<div style={{background:"rgba(249,115,22,0.2)",border:"1px solid rgba(249,115,22,0.4)",borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:600,color:"#FFEDD5"}}>{overdueCount} Overdue</div>}
             </div>
           </div>
         </div>
-        <div className="tab-scroll" style={{display:"flex",gap:0,overflowX:"auto"}}>
+        <div className="tab-scroll" style={{display:"flex",gap:2,overflowX:"auto",paddingBottom:0}}>
           {TABS.map(t=>(
-            <button key={t.id} className="tb" onClick={()=>setTab(t.id)} style={{padding:"8px 14px",background:"transparent",border:"none",borderBottom:tab===t.id?"2px solid #f59e0b":"2px solid transparent",color:tab===t.id?"#f59e0b":"#4b5563",fontSize:11,letterSpacing:1,cursor:"pointer",fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap",transition:"color .15s"}}>{t.label.toUpperCase()}</button>
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"10px 16px",background:tab===t.id?"#fff":"transparent",border:"none",borderRadius:"10px 10px 0 0",color:tab===t.id?"#7C3AED":"rgba(255,255,255,0.7)",fontSize:12,fontWeight:tab===t.id?700:500,cursor:"pointer",fontFamily:"'Inter',sans-serif",whiteSpace:"nowrap",transition:"all .15s"}}>{t.label}</button>
           ))}
         </div>
       </div>
 
-      <div style={{padding:"16px 20px",maxWidth:980,margin:"0 auto"}}>
+      <div style={{padding:"20px 24px",maxWidth:1000,margin:"0 auto"}}>
 
         {/* ═══ OVERVIEW ═══ */}
         {tab==="overview"&&(
           <div className="fi">
-            <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-              {[{label:"GC Budget LOW",val:fmt$(totalLow),sub:`HIGH: ${fmt$(totalHigh)}`,c:"#f59e0b"},{label:"Spent to Date",val:fmt$(totalSpent),sub:`committed: ${fmt$(totalCommitted)}`,c:"#ef4444"},{label:"Tasks Complete",val:`${doneTasks.length}/${allTasks.length}`,sub:`${overdueCount} overdue`,c:overdueCount?"#f97316":"#22c55e"},{label:"Open Issues",val:openIssues.length,sub:`${critIssues.length} critical`,c:critIssues.length?"#ef4444":"#6b7280"}].map((s,i)=>(
-                <div key={i} style={{background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"12px 14px"}}>
-                  <div style={{fontSize:9,color:"#4b5563",letterSpacing:1.5,marginBottom:6}}>{s.label.toUpperCase()}</div>
-                  <div style={{fontFamily:"'Bebas Neue'",fontSize:24,color:s.c}}>{s.val}</div>
-                  <div style={{fontSize:9,color:"#374151",marginTop:3}}>{s.sub}</div>
+            <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
+              {[{label:"GC Budget LOW",val:fmt$(totalLow),sub:`HIGH: ${fmt$(totalHigh)}`,c:"#7C3AED",bg:"linear-gradient(135deg,#7C3AED,#A78BFA)"},{label:"Spent to Date",val:fmt$(totalSpent),sub:`committed: ${fmt$(totalCommitted)}`,c:"#EF4444",bg:"linear-gradient(135deg,#EF4444,#F87171)"},{label:"Tasks Complete",val:`${doneTasks.length}/${allTasks.length}`,sub:`${overdueCount} overdue`,c:overdueCount?"#F97316":"#22C55E",bg:overdueCount?"linear-gradient(135deg,#F97316,#FB923C)":"linear-gradient(135deg,#22C55E,#4ADE80)"},{label:"Open Issues",val:openIssues.length,sub:`${critIssues.length} critical`,c:critIssues.length?"#EF4444":"#64748B",bg:critIssues.length?"linear-gradient(135deg,#EF4444,#F87171)":"linear-gradient(135deg,#64748B,#94A3B8)"}].map((s,i)=>(
+                <div key={i} style={{...card,background:s.bg,color:"#fff",border:"none"}}>
+                  <div style={{fontSize:11,fontWeight:600,opacity:.8,marginBottom:8,textTransform:"uppercase",letterSpacing:"0.05em"}}>{s.label}</div>
+                  <div style={{fontSize:28,fontWeight:900}}>{s.val}</div>
+                  <div style={{fontSize:11,opacity:.7,marginTop:4}}>{s.sub}</div>
                 </div>
               ))}
             </div>
 
-            <div style={{background:"#0a0d0a",border:"1px solid #14532d44",borderRadius:4,padding:"12px 16px",marginBottom:12}}>
-              <div style={{fontSize:10,color:"#22c55e",letterSpacing:2,marginBottom:8}}>PREMISES — 225 FIFTH AVENUE, NEW YORK NY 10010</div>
+            <div style={{...card,background:"linear-gradient(135deg,#F5F3FF,#EDE9FE)",border:"1px solid #DDD6FE",marginBottom:14}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:10}}>PREMISES -- 225 FIFTH AVENUE, NEW YORK NY 10010</div>
               <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
                 {[{l:"Useable SF",v:"17,095"},{l:"Rentable SF",v:"19,451"},{l:"Ground Floor",v:"1,510 SF (lobby)"},{l:"Lower Level",v:"17,941 SF (gym)"},{l:"Prop. Share",v:"46.85% of building"},{l:"Competitor Exclusion",v:"<4,500 SF protected"}].map((f,i)=>(
-                  <div key={i} style={{fontSize:11}}><span style={{color:"#374151"}}>{f.l}: </span><span style={{color:"#d4c9a8"}}>{f.v}</span></div>
+                  <div key={i} style={{fontSize:13}}><span style={{color:"#7C3AED",fontWeight:600}}>{f.l}: </span><span style={{color:"#1E293B"}}>{f.v}</span></div>
                 ))}
               </div>
             </div>
 
-            <div style={{background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"14px 16px",marginBottom:12}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                <div style={{fontSize:10,color:"#6b7280",letterSpacing:2}}>SMARTSHEET PHASES — O'LEARY GROUP</div>
-                <div style={{fontSize:9,color:"#374151"}}>tap to open</div>
+            <div style={{...card,marginBottom:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em"}}>SMARTSHEET PHASES -- O'LEARY GROUP</div>
+                <div style={{fontSize:11,color:"#94A3B8"}}>tap to open</div>
               </div>
               {phases.map(p=>{
                 const done=p.tasks.filter(t=>t.done).length;
                 const ov=p.tasks.filter(t=>t.status==="overdue").length;
                 return(
-                  <div key={p.id} className="rh" onClick={()=>{setSelPhase(p);setTab("timeline");}} style={{padding:"10px 8px",borderBottom:"1px solid #111418",borderRadius:4,marginBottom:4}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                      <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                        <div style={{width:8,height:8,borderRadius:"50%",background:p.color,boxShadow:p.status==="active"?`0 0 8px ${p.color}`:"none"}}/>
-                        <span style={{fontSize:12,color:p.status==="active"?"#e5e7eb":"#6b7280"}}>{p.name}</span>
-                        {p.status==="active"&&<span style={{fontSize:9,color:p.color,background:`${p.color}22`,border:`1px solid ${p.color}44`,padding:"1px 6px",borderRadius:2}}>ACTIVE</span>}
-                        {ov>0&&<span style={{fontSize:9,color:"#ef4444",background:"#450a0a",padding:"1px 6px",borderRadius:2}}>{ov} OVERDUE</span>}
+                  <div key={p.id} className="card-hover" onClick={()=>{setSelPhase(p);setTab("timeline");}} style={{padding:"12px 10px",borderBottom:"1px solid #F1F5F9",borderRadius:8,marginBottom:4}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                        <div style={{width:10,height:10,borderRadius:"50%",background:p.color,boxShadow:p.status==="active"?`0 0 10px ${p.color}66`:"none"}}/>
+                        <span style={{fontSize:14,fontWeight:600,color:"#1E293B"}}>{p.name}</span>
+                        {p.status==="active"&&<span style={{fontSize:10,fontWeight:700,color:"#7C3AED",background:"#F5F3FF",padding:"2px 8px",borderRadius:10,border:"1px solid #DDD6FE"}}>ACTIVE</span>}
+                        {ov>0&&<span style={{fontSize:10,fontWeight:700,color:"#EF4444",background:"#FEF2F2",padding:"2px 8px",borderRadius:10,border:"1px solid #FECACA"}}>{ov} OVERDUE</span>}
                       </div>
-                      <div style={{fontSize:10,color:"#6b7280",whiteSpace:"nowrap"}}>{p.weeks}w · {done}/{p.tasks.length}</div>
+                      <div style={{fontSize:12,color:"#64748B",fontWeight:600}}>{p.weeks}w &middot; {done}/{p.tasks.length}</div>
                     </div>
-                    <div style={{background:"#111418",borderRadius:2,height:3}}>
-                      <div className="pb" style={{width:`${Math.round((done/p.tasks.length)*100)}%`,height:3,background:p.color,borderRadius:2}}/>
+                    <div style={{background:"#F1F5F9",borderRadius:6,height:4}}>
+                      <div className="pb" style={{width:`${Math.round((done/p.tasks.length)*100)}%`,height:4,background:p.color,borderRadius:6}}/>
                     </div>
                   </div>
                 );
@@ -336,29 +324,29 @@ export default function App(){
             </div>
 
             {critIssues.length>0&&(
-              <div style={{background:"#450a0a22",border:"1px solid #dc262666",borderRadius:4,padding:"14px 16px",marginBottom:12}}>
-                <div style={{fontSize:10,color:"#ef4444",letterSpacing:2,marginBottom:10}}>CRITICAL BLOCKERS</div>
+              <div style={{...card,background:"#FEF2F2",border:"1px solid #FECACA",marginBottom:14}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#EF4444",letterSpacing:"0.05em",marginBottom:12}}>CRITICAL BLOCKERS</div>
                 {critIssues.map(i=>(
-                  <div key={i.id} className="rh" onClick={()=>{setSelIssue(i);setTab("issues");}} style={{padding:"8px 0",borderBottom:"1px solid #1f0707",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                  <div key={i.id} className="card-hover" onClick={()=>{setSelIssue(i);setTab("issues");}} style={{padding:"10px 0",borderBottom:"1px solid #FECACA",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div>
-                      <div style={{fontSize:12,color:"#fca5a5",marginBottom:2}}>{i.title}</div>
-                      <div style={{fontSize:10,color:"#6b7280"}}>{i.notes.substring(0,90)}...</div>
+                      <div style={{fontSize:14,fontWeight:600,color:"#991B1B",marginBottom:2}}>{i.title}</div>
+                      <div style={{fontSize:12,color:"#DC2626"}}>{i.notes.substring(0,90)}...</div>
                     </div>
-                    <div style={{fontSize:10,color:"#ef4444",whiteSpace:"nowrap",marginLeft:12}}>Due {i.due}</div>
+                    <div style={{fontSize:11,color:"#EF4444",fontWeight:600,whiteSpace:"nowrap",marginLeft:12}}>Due {i.due}</div>
                   </div>
                 ))}
               </div>
             )}
 
-            <div style={{background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"14px 16px"}}>
-              <div style={{fontSize:10,color:"#6b7280",letterSpacing:2,marginBottom:10}}>VENDOR STATUS</div>
-              <div className="g2" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:6}}>
+            <div style={card}>
+              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:12}}>VENDOR STATUS</div>
+              <div className="g2" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
                 {vendors.map(v=>(
-                  <div key={v.id} className="rh" onClick={()=>{setSelVendor(v);setTab("vendors");}} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 10px",background:"#111418",borderRadius:3,border:`1px solid ${v.risk==="high"?"#dc262633":v.risk==="medium"?"#ca8a0433":"#1a1f26"}`}}>
-                    <div><div style={{fontSize:11,color:"#d4c9a8"}}>{v.name}</div><div style={{fontSize:9,color:"#4b5563"}}>{v.role}</div></div>
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:2}}>
-                      <span style={{fontSize:9,color:VSTATUS[v.status].color}}>{VSTATUS[v.status].label}</span>
-                      <span style={{fontSize:9,color:PRISK[v.risk].color}}>{v.risk} risk</span>
+                  <div key={v.id} className="card-hover" onClick={()=>{setSelVendor(v);setTab("vendors");}} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#F8FAFC",borderRadius:10,border:`1px solid ${v.risk==="high"?"#FECACA":v.risk==="medium"?"#FDE68A":"#E2E8F0"}`}}>
+                    <div><div style={{fontSize:13,fontWeight:600,color:"#1E293B"}}>{v.name}</div><div style={{fontSize:11,color:"#94A3B8"}}>{v.role}</div></div>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+                      <span style={{fontSize:10,fontWeight:700,color:VSTATUS[v.status].color}}>{VSTATUS[v.status].label}</span>
+                      <span style={{fontSize:10,fontWeight:600,color:PRISK[v.risk].color}}>{v.risk} risk</span>
                     </div>
                   </div>
                 ))}
@@ -370,47 +358,47 @@ export default function App(){
         {/* ═══ TIMELINE ═══ */}
         {tab==="timeline"&&(
           <div className="fi">
-            <div style={{background:"#0a0d14",border:"1px solid #1a1f26",borderRadius:4,padding:"10px 14px",marginBottom:12,fontSize:11,color:"#4b5563"}}>
-              Source: O'Leary Group · "Hero's Journey Flatiron Schedule" · Click tasks to toggle complete
+            <div style={{...card,background:"#F5F3FF",border:"1px solid #DDD6FE",marginBottom:14,fontSize:12,color:"#7C3AED",fontWeight:500}}>
+              Source: O'Leary Group &middot; "Hero's Journey Flatiron Schedule" &middot; Click tasks to toggle complete
             </div>
             {phases.map(p=>{
               const isOpen=selPhase?.id===p.id;
               const done=p.tasks.filter(t=>t.done).length;
               const ov=p.tasks.filter(t=>t.status==="overdue").length;
               return(
-                <div key={p.id} style={{marginBottom:8,background:"#0d0f12",border:`1px solid ${isOpen?p.color+"66":"#1a1f26"}`,borderRadius:4,overflow:"hidden"}}>
-                  <div className="rh" onClick={()=>setSelPhase(isOpen?null:p)} style={{padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-                      <div style={{width:10,height:10,borderRadius:"50%",background:p.color,boxShadow:p.status==="active"?`0 0 10px ${p.color}`:"none"}}/>
+                <div key={p.id} style={{marginBottom:10,...card,border:`1px solid ${isOpen?p.color:"#E2E8F0"}`,padding:0,overflow:"hidden"}}>
+                  <div className="card-hover" onClick={()=>setSelPhase(isOpen?null:p)} style={{padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                      <div style={{width:12,height:12,borderRadius:"50%",background:p.color,boxShadow:p.status==="active"?`0 0 12px ${p.color}66`:"none"}}/>
                       <div>
-                        <div style={{fontSize:13,color:p.status==="active"?"#f5f5f0":"#9ca3af"}}>{p.name}</div>
-                        <div style={{fontSize:10,color:"#4b5563"}}>{p.weeks}w / {p.days}d · {p.start} → {p.end}</div>
+                        <div style={{fontSize:15,fontWeight:700,color:"#1E293B"}}>{p.name}</div>
+                        <div style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>{p.weeks}w / {p.days}d &middot; {p.start} &rarr; {p.end}</div>
                       </div>
-                      {p.status==="active"&&<span style={{fontSize:9,color:p.color,background:`${p.color}22`,padding:"2px 6px",border:`1px solid ${p.color}44`,borderRadius:2}}>ACTIVE</span>}
-                      {ov>0&&<span style={{fontSize:9,color:"#ef4444",background:"#450a0a",padding:"2px 6px",borderRadius:2}}>{ov} OVERDUE</span>}
+                      {p.status==="active"&&<span style={{fontSize:10,fontWeight:700,color:"#7C3AED",background:"#F5F3FF",padding:"3px 10px",borderRadius:10,border:"1px solid #DDD6FE"}}>ACTIVE</span>}
+                      {ov>0&&<span style={{fontSize:10,fontWeight:700,color:"#EF4444",background:"#FEF2F2",padding:"3px 10px",borderRadius:10,border:"1px solid #FECACA"}}>{ov} OVERDUE</span>}
                     </div>
-                    <div style={{display:"flex",alignItems:"center",gap:12}}>
-                      <div style={{textAlign:"right"}}><div style={{fontSize:11,color:p.color}}>{done}/{p.tasks.length}</div><div style={{fontSize:9,color:"#374151"}}>done</div></div>
-                      <div style={{color:"#374151",fontSize:12}}>{isOpen?"▲":"▼"}</div>
+                    <div style={{display:"flex",alignItems:"center",gap:14}}>
+                      <div style={{textAlign:"right"}}><div style={{fontSize:14,fontWeight:800,color:p.color}}>{done}/{p.tasks.length}</div><div style={{fontSize:10,color:"#94A3B8",fontWeight:500}}>done</div></div>
+                      <div style={{color:"#CBD5E1",fontSize:14}}>{isOpen?"▲":"▼"}</div>
                     </div>
                   </div>
                   {isOpen&&(
-                    <div style={{padding:"0 16px 14px",borderTop:`1px solid ${p.color}22`}}>
-                      <div style={{background:"#111418",borderRadius:2,height:3,margin:"10px 0 12px"}}>
-                        <div style={{width:`${Math.round((done/p.tasks.length)*100)}%`,height:3,background:p.color,borderRadius:2,transition:"width .4s"}}/>
+                    <div style={{padding:"0 20px 16px",borderTop:`1px solid ${p.color}22`}}>
+                      <div style={{background:"#F1F5F9",borderRadius:6,height:4,margin:"12px 0 14px"}}>
+                        <div style={{width:`${Math.round((done/p.tasks.length)*100)}%`,height:4,background:p.color,borderRadius:6,transition:"width .4s"}}/>
                       </div>
                       {p.tasks.map(t=>(
-                        <div key={t.id} className="rh" onClick={()=>toggleTask(p.id,t.id)} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"8px 6px",borderRadius:3,borderBottom:"1px solid #0d1117",opacity:t.done?.45:1,background:t.status==="overdue"?"#1a000033":"transparent"}}>
-                          <div style={{width:16,height:16,borderRadius:2,flexShrink:0,marginTop:1,background:t.done?p.color:"transparent",border:`1.5px solid ${t.done?p.color:t.status==="overdue"?"#ef4444":"#374151"}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                            {t.done&&<span style={{color:"#000",fontSize:10,fontWeight:700}}>✓</span>}
+                        <div key={t.id} className="card-hover" onClick={()=>toggleTask(p.id,t.id)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"10px 8px",borderRadius:8,borderBottom:"1px solid #F1F5F9",opacity:t.done?.5:1,background:t.status==="overdue"?"#FEF2F2":"transparent"}}>
+                          <div style={{width:20,height:20,borderRadius:6,flexShrink:0,marginTop:1,background:t.done?p.color:"#fff",border:`2px solid ${t.done?p.color:t.status==="overdue"?"#EF4444":"#CBD5E1"}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            {t.done&&<span style={{color:"#fff",fontSize:11,fontWeight:800}}>&#10003;</span>}
                           </div>
                           <div style={{flex:1}}>
                             <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                              <span style={{fontSize:12,color:t.done?"#4b5563":t.status==="overdue"?"#fca5a5":"#d4c9a8",textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
-                              <span style={{fontSize:9,color:TSTATUS[t.status]?.color,background:`${TSTATUS[t.status]?.color}22`,padding:"1px 5px",borderRadius:2}}>{TSTATUS[t.status]?.label}</span>
-                              {t.duration&&<span style={{fontSize:9,color:"#374151"}}>{t.duration}</span>}
+                              <span style={{fontSize:13,fontWeight:t.done?400:600,color:t.done?"#94A3B8":t.status==="overdue"?"#991B1B":"#1E293B",textDecoration:t.done?"line-through":"none"}}>{t.text}</span>
+                              <span style={{fontSize:10,fontWeight:700,color:TSTATUS[t.status]?.color,background:`${TSTATUS[t.status]?.color}15`,padding:"2px 8px",borderRadius:10}}>{TSTATUS[t.status]?.label}</span>
+                              {t.duration&&<span style={{fontSize:10,color:"#94A3B8",fontWeight:500}}>{t.duration}</span>}
                             </div>
-                            <div style={{fontSize:10,color:"#374151",marginTop:2}}>Owner: {t.owner}</div>
+                            <div style={{fontSize:11,color:"#94A3B8",marginTop:3,fontWeight:500}}>Owner: {t.owner}</div>
                           </div>
                         </div>
                       ))}
@@ -425,34 +413,34 @@ export default function App(){
         {/* ═══ VENDORS ═══ */}
         {tab==="vendors"&&(
           <div className="fi">
-            <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:selVendor?12:0}}>
+            <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:selVendor?14:0}}>
               {vendors.map(v=>(
-                <div key={v.id} className="rh" onClick={()=>setSelVendor(selVendor?.id===v.id?null:v)} style={{background:"#0d0f12",border:`1px solid ${selVendor?.id===v.id?"#f59e0b66":v.risk==="high"?"#dc262633":v.risk==="medium"?"#ca8a0433":"#1a1f26"}`,borderRadius:4,padding:"12px 14px"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><div style={{fontSize:13,color:"#e5e7eb"}}>{v.name}</div><span style={{fontSize:9,color:VSTATUS[v.status].color}}>{VSTATUS[v.status].label}</span></div>
-                  <div style={{fontSize:10,color:"#6b7280",marginBottom:6}}>{v.role}</div>
-                  <div style={{fontSize:10,color:"#374151",marginBottom:6}}>{v.notes.substring(0,80)}...</div>
-                  <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:9,color:PRISK[v.risk].color}}>{v.risk.toUpperCase()} RISK</span>{v.budget>0&&<span style={{fontSize:9,color:"#4b5563"}}>{fmt$(v.budget)}</span>}</div>
+                <div key={v.id} className="card-hover" onClick={()=>setSelVendor(selVendor?.id===v.id?null:v)} style={{...card,border:`1px solid ${selVendor?.id===v.id?"#7C3AED":v.risk==="high"?"#FECACA":v.risk==="medium"?"#FDE68A":"#E2E8F0"}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><div style={{fontSize:15,fontWeight:700,color:"#1E293B"}}>{v.name}</div><span style={{fontSize:10,fontWeight:700,color:VSTATUS[v.status].color}}>{VSTATUS[v.status].label}</span></div>
+                  <div style={{fontSize:12,color:"#64748B",fontWeight:500,marginBottom:8}}>{v.role}</div>
+                  <div style={{fontSize:12,color:"#94A3B8",marginBottom:8}}>{v.notes.substring(0,80)}...</div>
+                  <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:11,fontWeight:700,color:PRISK[v.risk].color}}>{v.risk.toUpperCase()} RISK</span>{v.budget>0&&<span style={{fontSize:11,color:"#64748B",fontWeight:600}}>{fmt$(v.budget)}</span>}</div>
                 </div>
               ))}
             </div>
             {selVendor&&(
-              <div className="fi" style={{background:"#0d0f12",border:"1px solid #f59e0b44",borderRadius:4,padding:"16px 18px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-                  <div><div style={{fontFamily:"'Bebas Neue'",fontSize:20,color:"#f59e0b",letterSpacing:2}}>{selVendor.name}</div><div style={{fontSize:10,color:"#6b7280"}}>{selVendor.role} · {selVendor.contract}</div></div>
-                  <button onClick={()=>setSelVendor(null)} style={{background:"none",border:"none",color:"#374151",cursor:"pointer",fontSize:18}}>x</button>
+              <div className="fi" style={{...card,border:"1px solid #7C3AED"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}>
+                  <div><div style={{fontSize:22,fontWeight:900,color:"#7C3AED"}}>{selVendor.name}</div><div style={{fontSize:12,color:"#64748B",fontWeight:500}}>{selVendor.role} &middot; {selVendor.contract}</div></div>
+                  <button onClick={()=>setSelVendor(null)} style={{background:"#F1F5F9",border:"none",borderRadius:8,width:32,height:32,color:"#64748B",cursor:"pointer",fontSize:16,fontWeight:700}}>x</button>
                 </div>
-                <div style={{fontSize:12,color:"#9ca3af",marginBottom:12,lineHeight:1.6}}>{selVendor.notes}</div>
-                <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                <div style={{fontSize:13,color:"#475569",marginBottom:14,lineHeight:1.7}}>{selVendor.notes}</div>
+                <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
                   <div>
-                    <div style={{fontSize:9,color:"#4b5563",letterSpacing:1.5,marginBottom:6}}>DELIVERABLES</div>
-                    {selVendor.deliverables.map((d,i)=><div key={i} style={{fontSize:11,color:"#6b7280",padding:"3px 0",borderBottom:"1px solid #111418"}}>- {d}</div>)}
+                    <div style={{fontSize:11,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:8}}>DELIVERABLES</div>
+                    {selVendor.deliverables.map((d,i)=><div key={i} style={{fontSize:12,color:"#475569",padding:"4px 0",borderBottom:"1px solid #F1F5F9"}}>&rarr; {d}</div>)}
                   </div>
                   <div>
-                    <div style={{fontSize:9,color:"#4b5563",letterSpacing:1.5,marginBottom:6}}>NEXT ACTION</div>
-                    <div style={{fontSize:12,color:"#f59e0b",marginBottom:8,lineHeight:1.5}}>{selVendor.nextAction}</div>
-                    <div style={{fontSize:10,color:"#4b5563"}}>Due: {selVendor.dueDate}</div>
-                    {selVendor.dueDate!=="—"&&daysUntil(selVendor.dueDate)!==null&&<div style={{fontSize:11,color:daysUntil(selVendor.dueDate)<14?"#ef4444":"#eab308",marginTop:4}}>{daysUntil(selVendor.dueDate)} days remaining</div>}
-                    {selVendor.budget>0&&<div style={{marginTop:10}}><div style={{fontSize:9,color:"#4b5563",letterSpacing:1.5,marginBottom:4}}>BUDGET</div><div style={{fontSize:16,fontFamily:"'Bebas Neue'",color:"#f59e0b"}}>{fmt$(selVendor.budget)}</div><div style={{fontSize:10,color:"#374151"}}>Spent: {fmt$(selVendor.spent)}</div></div>}
+                    <div style={{fontSize:11,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:8}}>NEXT ACTION</div>
+                    <div style={{fontSize:13,color:"#7C3AED",fontWeight:600,marginBottom:8,lineHeight:1.6}}>{selVendor.nextAction}</div>
+                    <div style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>Due: {selVendor.dueDate}</div>
+                    {selVendor.dueDate!=="--"&&daysUntil(selVendor.dueDate)!==null&&<div style={{fontSize:12,fontWeight:700,color:daysUntil(selVendor.dueDate)<14?"#EF4444":"#EAB308",marginTop:4}}>{daysUntil(selVendor.dueDate)} days remaining</div>}
+                    {selVendor.budget>0&&<div style={{marginTop:12}}><div style={{fontSize:11,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:4}}>BUDGET</div><div style={{fontSize:22,fontWeight:900,color:"#7C3AED"}}>{fmt$(selVendor.budget)}</div><div style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>Spent: {fmt$(selVendor.spent)}</div></div>}
                   </div>
                 </div>
               </div>
@@ -463,36 +451,36 @@ export default function App(){
         {/* ═══ ISSUES ═══ */}
         {tab==="issues"&&(
           <div className="fi">
-            <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",justifyContent:"space-between"}}>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",justifyContent:"space-between"}}>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {["all","open","closed"].map(f=>(
-                  <button key={f} onClick={()=>setIssueFilter(f)} style={{background:issueFilter===f?"#1a1f26":"#0d0f12",border:`1px solid ${issueFilter===f?"#f59e0b44":"#1a1f26"}`,color:issueFilter===f?"#f59e0b":"#6b7280",padding:"4px 12px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"'DM Mono',monospace",textTransform:"uppercase",letterSpacing:1}}>
+                  <button key={f} onClick={()=>setIssueFilter(f)} style={pill(issueFilter===f)}>
                     {f} ({f==="all"?issues.length:f==="open"?issues.filter(i=>i.open).length:issues.filter(i=>!i.open).length})
                   </button>
                 ))}
               </div>
-              <button onClick={()=>setShowNewIssue(!showNewIssue)} style={{...btnAmber,background:showNewIssue?"#374151":"#92400e"}}>
-                {showNewIssue?"CANCEL":"+ NEW ISSUE"}
+              <button onClick={()=>setShowNewIssue(!showNewIssue)} style={{...btnPrimary,background:showNewIssue?"#94A3B8":"#7C3AED"}}>
+                {showNewIssue?"Cancel":"+ New Issue"}
               </button>
             </div>
 
             {showNewIssue&&(
-              <div className="fi" style={{background:"#0d0f12",border:"1px solid #f59e0b44",borderRadius:4,padding:"14px 16px",marginBottom:12}}>
-                <div style={{fontSize:10,color:"#f59e0b",letterSpacing:2,marginBottom:10}}>NEW ISSUE</div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  <input value={newIssue.title} onChange={e=>setNewIssue(p=>({...p,title:e.target.value}))} placeholder="Issue title..." style={inputStyle}/>
+              <div className="fi" style={{...card,border:"1px solid #7C3AED",marginBottom:14}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:12}}>NEW ISSUE</div>
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  <input value={newIssue.title} onChange={e=>setNewIssue(p=>({...p,title:e.target.value}))} placeholder="Issue title..." style={inputS}/>
                   <div className="g4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-                    <select value={newIssue.severity} onChange={e=>setNewIssue(p=>({...p,severity:e.target.value}))} style={inputStyle}>
-                      {["critical","high","medium","low"].map(s=><option key={s} value={s}>{s.toUpperCase()}</option>)}
+                    <select value={newIssue.severity} onChange={e=>setNewIssue(p=>({...p,severity:e.target.value}))} style={inputS}>
+                      {["critical","high","medium","low"].map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
                     </select>
-                    <input value={newIssue.owner} onChange={e=>setNewIssue(p=>({...p,owner:e.target.value}))} placeholder="Owner..." style={inputStyle}/>
-                    <select value={newIssue.phase} onChange={e=>setNewIssue(p=>({...p,phase:e.target.value}))} style={inputStyle}>
+                    <input value={newIssue.owner} onChange={e=>setNewIssue(p=>({...p,owner:e.target.value}))} placeholder="Owner..." style={inputS}/>
+                    <select value={newIssue.phase} onChange={e=>setNewIssue(p=>({...p,phase:e.target.value}))} style={inputS}>
                       {["Design","Procurement","Budget","Construction","Finance","Pre-Opening"].map(p=><option key={p} value={p}>{p}</option>)}
                     </select>
-                    <input type="date" value={newIssue.due} onChange={e=>setNewIssue(p=>({...p,due:e.target.value}))} style={{...inputStyle,colorScheme:"dark"}}/>
+                    <input type="date" value={newIssue.due} onChange={e=>setNewIssue(p=>({...p,due:e.target.value}))} style={inputS}/>
                   </div>
-                  <textarea value={newIssue.notes} onChange={e=>setNewIssue(p=>({...p,notes:e.target.value}))} placeholder="Notes / context..." rows={2} style={{...inputStyle,resize:"vertical"}}/>
-                  <button onClick={addIssue} disabled={!newIssue.title.trim()} style={{...btnAmber,opacity:newIssue.title.trim()?1:.4,alignSelf:"flex-start"}}>ADD ISSUE</button>
+                  <textarea value={newIssue.notes} onChange={e=>setNewIssue(p=>({...p,notes:e.target.value}))} placeholder="Notes / context..." rows={2} style={{...inputS,resize:"vertical"}}/>
+                  <button onClick={addIssue} disabled={!newIssue.title.trim()} style={{...btnPrimary,opacity:newIssue.title.trim()?1:.4,alignSelf:"flex-start"}}>Add Issue</button>
                 </div>
               </div>
             )}
@@ -501,26 +489,26 @@ export default function App(){
               const s=SEV[issue.severity];
               const isOpen=selIssue?.id===issue.id;
               return(
-                <div key={issue.id} style={{marginBottom:6,background:s.bg,border:`1px solid ${isOpen?s.border:s.border+"66"}`,borderRadius:4,overflow:"hidden"}}>
-                  <div className="rh" onClick={()=>setSelIssue(isOpen?null:issue)} style={{padding:"11px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div key={issue.id} style={{marginBottom:8,...card,background:s.bg,border:`1px solid ${isOpen?s.border:s.border+"44"}`,padding:0,overflow:"hidden"}}>
+                  <div className="card-hover" onClick={()=>setSelIssue(isOpen?null:issue)} style={{padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
-                      <div style={{width:8,height:8,borderRadius:"50%",background:issue.open?s.dot:"#374151",flexShrink:0}}/>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:issue.open?s.dot:"#CBD5E1",flexShrink:0}}/>
                       <div style={{minWidth:0}}>
-                        <div style={{fontSize:12,color:issue.open?s.text:"#4b5563",textDecoration:issue.open?"none":"line-through"}}>{issue.title}</div>
-                        <div style={{fontSize:10,color:"#374151",marginTop:2}}>{issue.phase} · {issue.owner}</div>
+                        <div style={{fontSize:13,fontWeight:600,color:issue.open?s.text:"#94A3B8",textDecoration:issue.open?"none":"line-through"}}>{issue.title}</div>
+                        <div style={{fontSize:11,color:"#94A3B8",marginTop:2,fontWeight:500}}>{issue.phase} &middot; {issue.owner}</div>
                       </div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                      <span style={{fontSize:9,color:s.text,background:`${s.dot}22`,padding:"2px 6px",borderRadius:2}}>{issue.severity.toUpperCase()}</span>
-                      <span style={{fontSize:10,color:"#374151"}}>{issue.due}</span>
+                      <span style={{fontSize:10,fontWeight:700,color:s.text,background:s.badge,padding:"3px 8px",borderRadius:10}}>{issue.severity.toUpperCase()}</span>
+                      <span style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>{issue.due}</span>
                     </div>
                   </div>
                   {isOpen&&(
-                    <div style={{padding:"0 14px 12px",borderTop:`1px solid ${s.border}33`}}>
-                      <div style={{fontSize:12,color:s.text,margin:"10px 0",lineHeight:1.6}}>{issue.notes}</div>
+                    <div style={{padding:"0 16px 14px",borderTop:`1px solid ${s.border}33`}}>
+                      <div style={{fontSize:13,color:s.text,margin:"12px 0",lineHeight:1.7}}>{issue.notes}</div>
                       <div style={{display:"flex",gap:8}}>
-                        <button onClick={()=>toggleIssue(issue.id)} style={{background:issue.open?"#14532d":"#1a1f26",border:`1px solid ${issue.open?"#22c55e44":"#374151"}`,color:issue.open?"#4ade80":"#6b7280",padding:"5px 12px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"'DM Mono',monospace"}}>{issue.open?"MARK RESOLVED":"REOPEN"}</button>
-                        <button onClick={()=>setSelIssue(null)} style={{background:"none",border:"1px solid #1a1f26",color:"#4b5563",padding:"5px 12px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"'DM Mono',monospace"}}>CLOSE</button>
+                        <button onClick={()=>toggleIssue(issue.id)} style={{...btnPrimary,background:issue.open?"#22C55E":"#94A3B8"}}>{issue.open?"Mark Resolved":"Reopen"}</button>
+                        <button onClick={()=>setSelIssue(null)} style={{...btnPrimary,background:"#F1F5F9",color:"#64748B"}}>Close</button>
                       </div>
                     </div>
                   )}
@@ -533,46 +521,46 @@ export default function App(){
         {/* ═══ BUDGET ═══ */}
         {tab==="budget"&&(
           <div className="fi">
-            <div className="g3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:12}}>
-              {[{label:"GC Total LOW",val:fmt$(totalLow),sub:"base estimate",c:"#22c55e"},{label:"GC Total HIGH",val:fmt$(totalHigh),sub:`+${fmt$(totalHigh-totalLow)} variance`,c:"#f59e0b"},{label:"Spent to Date",val:fmt$(totalSpent),sub:`committed ${fmt$(totalCommitted)}`,c:"#ef4444"}].map((s,i)=>(
-                <div key={i} style={{background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"12px 14px",textAlign:"center"}}>
-                  <div style={{fontSize:9,color:"#4b5563",letterSpacing:1.5,marginBottom:4}}>{s.label}</div>
-                  <div style={{fontFamily:"'Bebas Neue'",fontSize:22,color:s.c}}>{s.val}</div>
-                  <div style={{fontSize:9,color:"#374151"}}>{s.sub}</div>
+            <div className="g3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:14}}>
+              {[{label:"GC Total LOW",val:fmt$(totalLow),sub:"base estimate",bg:"linear-gradient(135deg,#22C55E,#4ADE80)"},{label:"GC Total HIGH",val:fmt$(totalHigh),sub:`+${fmt$(totalHigh-totalLow)} variance`,bg:"linear-gradient(135deg,#7C3AED,#A78BFA)"},{label:"Spent to Date",val:fmt$(totalSpent),sub:`committed ${fmt$(totalCommitted)}`,bg:"linear-gradient(135deg,#EF4444,#F87171)"}].map((s,i)=>(
+                <div key={i} style={{...card,background:s.bg,border:"none",color:"#fff",textAlign:"center"}}>
+                  <div style={{fontSize:11,fontWeight:600,opacity:.8,letterSpacing:"0.05em",marginBottom:4}}>{s.label}</div>
+                  <div style={{fontSize:26,fontWeight:900}}>{s.val}</div>
+                  <div style={{fontSize:11,opacity:.7}}>{s.sub}</div>
                 </div>
               ))}
             </div>
-            <div style={{display:"flex",gap:6,marginBottom:10}}>
+            <div style={{display:"flex",gap:6,marginBottom:12}}>
               {["low","high"].map(v=>(
-                <button key={v} onClick={()=>setBudgetView(v)} style={{background:budgetView===v?"#1a1f26":"#0d0f12",border:`1px solid ${budgetView===v?"#f59e0b44":"#1a1f26"}`,color:budgetView===v?"#f59e0b":"#6b7280",padding:"4px 14px",borderRadius:3,fontSize:10,cursor:"pointer",fontFamily:"'DM Mono',monospace",textTransform:"uppercase",letterSpacing:1}}>
+                <button key={v} onClick={()=>setBudgetView(v)} style={pill(budgetView===v)}>
                   {v} estimate
                 </button>
               ))}
             </div>
-            <div style={{background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"14px 16px"}}>
-              <div style={{fontSize:10,color:"#6b7280",letterSpacing:2,marginBottom:12}}>LINE ITEMS — {budgetView.toUpperCase()} SCENARIO · 17,095 USEABLE SF</div>
+            <div style={card}>
+              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:14}}>LINE ITEMS -- {budgetView.toUpperCase()} SCENARIO &middot; 17,095 USEABLE SF</div>
               {[...new Set(budget.map(b=>b.category))].map(cat=>{
                 const items=budget.filter(b=>b.category===cat);
                 const catTotal=items.reduce((s,b)=>s+(budgetView==="low"?b.low:b.high),0);
                 return(
                   <div key={cat}>
-                    <div style={{fontSize:9,color:"#f59e0b",letterSpacing:1.5,padding:"8px 0 4px",borderBottom:"1px solid #1a1f26"}}>{cat.toUpperCase()} — {fmt$(catTotal)}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:"#7C3AED",padding:"10px 0 6px",borderBottom:"2px solid #EDE9FE"}}>{cat.toUpperCase()} -- {fmt$(catTotal)}</div>
                     {items.map(b=>{
                       const val=budgetView==="low"?b.low:b.high;
                       const burn=pct(b.spent,val);
                       const hasRange=b.low!==b.high;
                       return(
-                        <div key={b.id} className="budget-grid" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 60px",gap:0,padding:"7px 0",borderBottom:"1px solid #0d1117"}}>
+                        <div key={b.id} className="budget-grid" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 60px",gap:0,padding:"8px 0",borderBottom:"1px solid #F1F5F9"}}>
                           <div>
-                            <div style={{fontSize:11,color:"#d4c9a8"}}>{b.label}</div>
-                            {hasRange&&<div style={{fontSize:9,color:"#374151"}}>L:{fmt$(b.low)} H:{fmt$(b.high)}</div>}
+                            <div style={{fontSize:13,fontWeight:500,color:"#1E293B"}}>{b.label}</div>
+                            {hasRange&&<div style={{fontSize:10,color:"#94A3B8"}}>L:{fmt$(b.low)} H:{fmt$(b.high)}</div>}
                           </div>
-                          <div style={{fontSize:11,color:"#9ca3af"}}>{fmt$(val)}</div>
-                          <div className="budget-hide" style={{fontSize:11,color:"#3b82f6"}}>{fmt$(b.committed)}</div>
-                          <div className="budget-hide" style={{fontSize:11,color:b.spent>0?"#ef4444":"#374151"}}>{fmt$(b.spent)}</div>
+                          <div style={{fontSize:13,color:"#475569",fontWeight:600}}>{fmt$(val)}</div>
+                          <div className="budget-hide" style={{fontSize:13,color:"#7C3AED",fontWeight:500}}>{fmt$(b.committed)}</div>
+                          <div className="budget-hide" style={{fontSize:13,color:b.spent>0?"#EF4444":"#CBD5E1",fontWeight:500}}>{fmt$(b.spent)}</div>
                           <div>
-                            <div style={{fontSize:10,color:burn>80?"#ef4444":burn>0?"#eab308":"#374151"}}>{burn}%</div>
-                            <div style={{background:"#111418",borderRadius:1,height:3,marginTop:3,width:50}}><div style={{width:`${Math.min(burn,100)}%`,height:3,background:burn>80?"#ef4444":"#22c55e",borderRadius:1}}/></div>
+                            <div style={{fontSize:11,fontWeight:600,color:burn>80?"#EF4444":burn>0?"#EAB308":"#CBD5E1"}}>{burn}%</div>
+                            <div style={{background:"#F1F5F9",borderRadius:4,height:4,marginTop:3,width:50}}><div style={{width:`${Math.min(burn,100)}%`,height:4,background:burn>80?"#EF4444":"#7C3AED",borderRadius:4}}/></div>
                           </div>
                         </div>
                       );
@@ -581,12 +569,12 @@ export default function App(){
                 );
               })}
             </div>
-            <div style={{marginTop:12,background:"#0a0f0a",border:"1px solid #14532d44",borderRadius:4,padding:"12px 14px"}}>
-              <div style={{fontSize:10,color:"#4b5563",letterSpacing:1.5,marginBottom:8}}>FUNDING STATUS</div>
-              {[{l:"Cash on hand",v:"~$4,000,000",c:"#22c55e"},{l:"Bridge round raising",v:"$5,000,000",c:"#3b82f6"},{l:"LOC — JPMorgan (Iliyas guarantee)",v:"$1,400,000",c:"#eab308"}].map((f,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #111418"}}><span style={{fontSize:12,color:"#9ca3af"}}>{f.l}</span><span style={{fontSize:12,color:f.c}}>{f.v}</span></div>
+            <div style={{...card,background:"linear-gradient(135deg,#F5F3FF,#EDE9FE)",border:"1px solid #DDD6FE",marginTop:14}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:10}}>FUNDING STATUS</div>
+              {[{l:"Cash on hand",v:"~$4,000,000",c:"#22C55E"},{l:"Bridge round raising",v:"$5,000,000",c:"#7C3AED"},{l:"LOC -- JPMorgan (Iliyas guarantee)",v:"$1,400,000",c:"#EAB308"}].map((f,i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #DDD6FE"}}><span style={{fontSize:13,color:"#475569",fontWeight:500}}>{f.l}</span><span style={{fontSize:13,color:f.c,fontWeight:700}}>{f.v}</span></div>
               ))}
-              <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0 0"}}><span style={{fontSize:12,color:"#f59e0b"}}>Total available</span><span style={{fontSize:14,fontFamily:"'Bebas Neue'",color:"#f59e0b"}}>~$10,400,000</span></div>
+              <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 0"}}><span style={{fontSize:14,color:"#7C3AED",fontWeight:700}}>Total available</span><span style={{fontSize:20,fontWeight:900,color:"#7C3AED"}}>~$10,400,000</span></div>
             </div>
           </div>
         )}
@@ -594,37 +582,39 @@ export default function App(){
         {/* ═══ DAILY LOG ═══ */}
         {tab==="log"&&(
           <div className="fi">
-            <div style={{background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"14px 16px",marginBottom:12}}>
-              <div style={{fontSize:10,color:"#f59e0b",letterSpacing:2,marginBottom:10}}>NEW LOG ENTRY</div>
-              <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>
+            <div style={card}>
+              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:12}}>NEW LOG ENTRY</div>
+              <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
                 {LOG_TAGS.map(t=>(
-                  <button key={t} onClick={()=>setLogTag(t)} style={{background:logTag===t?`${TAG_COLORS[t]}22`:"#111418",border:`1px solid ${logTag===t?TAG_COLORS[t]+"66":"#1a1f26"}`,color:logTag===t?TAG_COLORS[t]:"#4b5563",padding:"3px 10px",borderRadius:3,fontSize:9,cursor:"pointer",fontFamily:"'DM Mono',monospace",letterSpacing:1,textTransform:"uppercase"}}>{t}</button>
+                  <button key={t} onClick={()=>setLogTag(t)} style={pill(logTag===t,TAG_COLORS[t])}>
+                    {t}
+                  </button>
                 ))}
               </div>
-              <div style={{display:"flex",gap:8}}>
-                <textarea value={logText} onChange={e=>setLogText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addLog();}}} placeholder="What happened today? Decisions, calls, site updates..." rows={2} style={{...inputStyle,flex:1,resize:"vertical"}}/>
-                <button onClick={addLog} disabled={!logText.trim()} style={{...btnAmber,opacity:logText.trim()?1:.4,alignSelf:"flex-end",padding:"10px 18px"}}>LOG</button>
+              <div style={{display:"flex",gap:10}}>
+                <textarea value={logText} onChange={e=>setLogText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addLog();}}} placeholder="What happened today? Decisions, calls, site updates..." rows={2} style={{...inputS,flex:1,resize:"vertical"}}/>
+                <button onClick={addLog} disabled={!logText.trim()} style={{...btnPrimary,opacity:logText.trim()?1:.4,alignSelf:"flex-end",padding:"12px 20px"}}>Log</button>
               </div>
             </div>
 
             {logs.length===0&&(
-              <div style={{textAlign:"center",padding:"40px 20px",color:"#374151",fontSize:12}}>
+              <div style={{textAlign:"center",padding:"48px 20px",color:"#94A3B8",fontSize:13,fontWeight:500}}>
                 No log entries yet. Add your first daily note above.
               </div>
             )}
 
             {Object.entries(logsByDate).map(([date,entries])=>(
-              <div key={date} style={{marginBottom:12}}>
-                <div style={{fontSize:10,color:"#6b7280",letterSpacing:2,padding:"6px 0",borderBottom:"1px solid #1a1f26",marginBottom:6}}>
+              <div key={date} style={{marginTop:16}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",padding:"8px 0",borderBottom:"2px solid #EDE9FE",marginBottom:8}}>
                   {new Date(date+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric",year:"numeric"})}
-                  <span style={{color:"#374151",marginLeft:8}}>{entries.length} {entries.length===1?"entry":"entries"}</span>
+                  <span style={{color:"#94A3B8",marginLeft:8,fontWeight:500}}>{entries.length} {entries.length===1?"entry":"entries"}</span>
                 </div>
                 {entries.map(entry=>(
-                  <div key={entry.id} style={{display:"flex",gap:10,padding:"8px 6px",borderBottom:"1px solid #0d1117",alignItems:"flex-start"}}>
-                    <div style={{fontSize:10,color:"#374151",whiteSpace:"nowrap",marginTop:2}}>{entry.time}</div>
-                    <span style={{fontSize:9,color:TAG_COLORS[entry.tag]||"#6b7280",background:`${TAG_COLORS[entry.tag]||"#6b7280"}22`,padding:"1px 6px",borderRadius:2,flexShrink:0,marginTop:1}}>{entry.tag.toUpperCase()}</span>
-                    <div style={{flex:1,fontSize:12,color:"#d4c9a8",lineHeight:1.6,whiteSpace:"pre-wrap"}}>{entry.text}</div>
-                    <button onClick={()=>deleteLog(entry.id)} style={{background:"none",border:"none",color:"#374151",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}} title="Delete entry">x</button>
+                  <div key={entry.id} style={{display:"flex",gap:12,padding:"10px 8px",borderBottom:"1px solid #F1F5F9",alignItems:"flex-start"}}>
+                    <div style={{fontSize:11,color:"#94A3B8",whiteSpace:"nowrap",marginTop:2,fontWeight:500}}>{entry.time}</div>
+                    <span style={{fontSize:10,fontWeight:700,color:TAG_COLORS[entry.tag]||"#64748B",background:`${TAG_COLORS[entry.tag]||"#64748B"}15`,padding:"2px 8px",borderRadius:10,flexShrink:0,marginTop:1}}>{entry.tag.toUpperCase()}</span>
+                    <div style={{flex:1,fontSize:13,color:"#1E293B",lineHeight:1.7,whiteSpace:"pre-wrap"}}>{entry.text}</div>
+                    <button onClick={()=>deleteLog(entry.id)} style={{background:"#F1F5F9",border:"none",borderRadius:6,color:"#94A3B8",cursor:"pointer",fontSize:12,flexShrink:0,padding:"2px 8px",fontWeight:700}} title="Delete">x</button>
                   </div>
                 ))}
               </div>
@@ -634,26 +624,26 @@ export default function App(){
 
         {/* ═══ AI ═══ */}
         {tab==="ai"&&(
-          <div className="fi" style={{display:"flex",flexDirection:"column",height:"calc(100vh - 220px)",minHeight:420}}>
-            <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:12}}>
+          <div className="fi" style={{display:"flex",flexDirection:"column",height:"calc(100vh - 240px)",minHeight:420}}>
+            <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:12,paddingBottom:12}}>
               {chat.map((m,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
-                  <div style={{maxWidth:"85%",padding:"10px 14px",borderRadius:4,background:m.role==="user"?"#1a1400":"#0d0f12",border:`1px solid ${m.role==="user"?"#f59e0b44":"#1a1f26"}`,fontSize:12,lineHeight:1.7,color:m.role==="user"?"#fde68a":"#d4c9a8",whiteSpace:"pre-wrap"}}>
-                    {m.role==="assistant"&&<div style={{fontSize:9,color:"#374151",letterSpacing:1.5,marginBottom:4}}>CONSTRUCTION AI</div>}
+                  <div style={{maxWidth:"85%",padding:"12px 16px",borderRadius:14,background:m.role==="user"?"#7C3AED":"#fff",border:m.role==="user"?"none":"1px solid #E2E8F0",fontSize:13,lineHeight:1.7,color:m.role==="user"?"#fff":"#1E293B",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",whiteSpace:"pre-wrap"}}>
+                    {m.role==="assistant"&&<div style={{fontSize:10,color:"#7C3AED",fontWeight:700,letterSpacing:"0.05em",marginBottom:4}}>CONSTRUCTION AI</div>}
                     {m.content}
                   </div>
                 </div>
               ))}
               <div ref={chatRef}/>
             </div>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>
-              {["What's blocking permit filing?","Decorative metals risk?","Client Review — what do I do?","Equipment order deadline?","GMP contract next steps?"].map((q,i)=>(
-                <button key={i} onClick={()=>setMsg(q)} style={{background:"#0d0f12",border:"1px solid #1a1f26",color:"#4b5563",fontSize:10,padding:"4px 10px",borderRadius:3,cursor:"pointer",fontFamily:"'DM Mono',monospace"}}>{q}</button>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+              {["What's blocking permit filing?","Decorative metals risk?","Client Review -- what do I do?","Equipment order deadline?","GMP contract next steps?"].map((q,i)=>(
+                <button key={i} onClick={()=>setMsg(q)} style={pill(false)}>{q}</button>
               ))}
             </div>
-            <div style={{display:"flex",gap:8}}>
-              <textarea value={msg} onChange={e=>setMsg(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMsg();}}} placeholder="Ask about timeline, budget, permits, vendors..." rows={2} style={{flex:1,background:"#0d0f12",border:"1px solid #1a1f26",borderRadius:4,padding:"10px 12px",color:"#d4c9a8",fontSize:12,resize:"none",fontFamily:"'DM Mono',monospace"}}/>
-              <button onClick={sendMsg} disabled={!msg.trim()} style={{background:!msg.trim()?"#111418":"#92400e",border:"none",borderRadius:4,padding:"0 18px",color:!msg.trim()?"#374151":"#fde68a",cursor:!msg.trim()?"not-allowed":"pointer",fontSize:16,transition:"background .2s"}}>{"->"}</button>
+            <div style={{display:"flex",gap:10}}>
+              <textarea value={msg} onChange={e=>setMsg(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMsg();}}} placeholder="Ask about timeline, budget, permits, vendors..." rows={2} style={{...inputS,flex:1,resize:"none"}}/>
+              <button onClick={sendMsg} disabled={!msg.trim()} style={{...btnPrimary,opacity:msg.trim()?1:.4,padding:"0 20px",fontSize:18}}>&rarr;</button>
             </div>
           </div>
         )}
