@@ -627,7 +627,14 @@ export default function App(){
               ))}
             </div>
             <div style={card}>
-              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:14}}>LINE ITEMS -- {budgetView.toUpperCase()} SCENARIO &middot; 17,095 USEABLE SF</div>
+              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:10}}>LINE ITEMS -- {budgetView.toUpperCase()} SCENARIO &middot; 17,095 USEABLE SF</div>
+              <div className="budget-grid" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 60px",gap:0,padding:"6px 0",borderBottom:"2px solid #E2E8F0",marginBottom:4}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em"}}>LINE ITEM</div>
+                <div style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em"}}>ESTIMATE</div>
+                <div className="budget-hide" style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em"}}>COMMITTED</div>
+                <div className="budget-hide" style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em"}}>SPENT</div>
+                <div style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em"}}>BURN</div>
+              </div>
               {[...new Set(budget.map(b=>b.category))].map(cat=>{
                 const items=budget.filter(b=>b.category===cat);
                 const catTotal=items.reduce((s,b)=>s+(budgetView==="low"?b.low:b.high),0);
