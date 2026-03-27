@@ -58,6 +58,7 @@ body{min-height:100vh;background:linear-gradient(135deg,#7C3AED 0%,#A78BFA 30%,#
 </div>
 </form>
 <div class="lock">Only <b>@hj.fit</b> emails are authorized</div>
+<div style="text-align:center;margin-top:16px;font-size:13px;color:#64748B">Forgot your password? <a href="mailto:andrey@hj.fit?subject=HJ%20Command%20Center%20-%20Password%20Reset%20Request" style="color:#7C3AED;font-weight:600;text-decoration:none">Contact Admin</a></div>
 <div class="footer">Access restricted to authorized team members only.</div>
 </div>
 <script>
