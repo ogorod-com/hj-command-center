@@ -15,24 +15,73 @@ async function getSession(req) {
   const token = cookies.hj_token;
   if (!token) return null;
   try {
-    const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "hj-default-secret-change-me");
+    const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
     const { payload } = await jwtVerify(token, secret);
     return payload;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
+}
+
+async function hashPw(password, salt) {
+  const data = new TextEncoder().encode(password + salt);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 function getUsers() {
-  try {
-    return JSON.parse(process.env.AUTH_USERS || "{}");
-  } catch {
-    return {};
+  try { return JSON.parse(process.env.AUTH_USERS || "{}"); } catch { return {}; }
+}
+
+async function updateVercelEnv(key, value) {
+  const token = process.env.VERCEL_API_TOKEN;
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  const teamId = process.env.VERCEL_TEAM_ID;
+  if (!token || !projectId) throw new Error("Vercel API not configured");
+
+  const base = "https://api.vercel.com";
+  const teamQ = teamId ? `?teamId=${teamId}` : "";
+
+  const listRes = await fetch(`${base}/v9/projects/${projectId}/env${teamQ}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const listData = await listRes.json();
+  const existing = listData.envs?.find(e => e.key === key && e.target?.includes("production"));
+
+  if (existing) {
+    await fetch(`${base}/v9/projects/${projectId}/env/${existing.id}${teamQ}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ value }),
+    });
+  } else {
+    await fetch(`${base}/v10/projects/${projectId}/env${teamQ}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value, type: "encrypted", target: ["production"] }),
+    });
   }
 }
 
+async function triggerRedeploy() {
+  const token = process.env.VERCEL_API_TOKEN;
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  const teamId = process.env.VERCEL_TEAM_ID;
+  if (!token || !projectId) return;
+
+  const listRes = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&limit=1&target=production${teamId ? `&teamId=${teamId}` : ""}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const listData = await listRes.json();
+  const latestId = listData.deployments?.[0]?.uid;
+  if (!latestId) return;
+
+  await fetch(`https://api.vercel.com/v13/deployments${teamId ? `?teamId=${teamId}` : ""}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "hj-command-center", deploymentId: latestId, target: "production" }),
+  });
+}
+
 export default async function handler(req, res) {
-  // Verify admin session
   const session = await getSession(req);
   if (!session || session.role !== "admin") {
     return res.status(403).json({ error: "Admin access required" });
@@ -41,60 +90,49 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const users = getUsers();
     const userList = Object.entries(users).map(([email, data]) => ({
-      email,
-      role: data.role || "member",
-      name: data.name || email.split("@")[0],
+      email, role: data.role || "member", name: data.name || email.split("@")[0],
     }));
     return res.status(200).json({ users: userList });
   }
 
-  // For POST (add user) and DELETE (remove user):
-  // These require updating the AUTH_USERS env var
-  // Return instructions for the admin
   if (req.method === "POST") {
-    const { email } = req.body || {};
+    const { email, password } = req.body || {};
     if (!email) return res.status(400).json({ error: "Email required" });
     if (!email.endsWith("@hj.fit")) return res.status(400).json({ error: "Only @hj.fit emails allowed" });
 
     const users = getUsers();
     if (users[email]) return res.status(409).json({ error: "User already exists" });
 
-    // Generate a temporary password hash for the new user
-    const tempPassword = "HJteam2026!";
+    const tempPw = password || "HJteam2026!";
     const salt = crypto.randomUUID();
-    const data = new TextEncoder().encode(tempPassword + salt);
-    const buf = await crypto.subtle.digest("SHA-256", data);
-    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    const hash = await hashPw(tempPw, salt);
+    users[email] = { hash, salt, role: "member", name: email.split("@")[0] };
 
-    const newUsers = { ...users, [email]: { hash, salt, role: "member", name: email.split("@")[0] } };
-    const envValue = JSON.stringify(newUsers);
-
-    return res.status(200).json({
-      ok: true,
-      message: "User config generated. Update AUTH_USERS env var in Vercel dashboard.",
-      envValue,
-      tempPassword,
-      instructions: "Copy the envValue to your Vercel Dashboard > Settings > Environment Variables > AUTH_USERS, then redeploy.",
-    });
+    try {
+      await updateVercelEnv("AUTH_USERS", JSON.stringify(users));
+      await triggerRedeploy();
+      return res.status(200).json({ ok: true, tempPassword: tempPw, message: "User added. Deploying (~30s)." });
+    } catch (e) {
+      return res.status(500).json({ error: "Failed to update. " + e.message });
+    }
   }
 
   if (req.method === "DELETE") {
     const { email } = req.body || {};
     if (!email) return res.status(400).json({ error: "Email required" });
+    if (email === session.email) return res.status(400).json({ error: "Cannot remove yourself" });
 
     const users = getUsers();
     if (!users[email]) return res.status(404).json({ error: "User not found" });
-    if (email === session.email) return res.status(400).json({ error: "Cannot remove yourself" });
+    delete users[email];
 
-    const newUsers = { ...users };
-    delete newUsers[email];
-    const envValue = JSON.stringify(newUsers);
-
-    return res.status(200).json({
-      ok: true,
-      message: "User removed from config. Update AUTH_USERS env var.",
-      envValue,
-    });
+    try {
+      await updateVercelEnv("AUTH_USERS", JSON.stringify(users));
+      await triggerRedeploy();
+      return res.status(200).json({ ok: true, message: "User removed. Deploying (~30s)." });
+    } catch (e) {
+      return res.status(500).json({ error: "Failed to update. " + e.message });
+    }
   }
 
   return res.status(405).json({ error: "Method not allowed" });

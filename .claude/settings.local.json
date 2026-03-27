@@ -34,7 +34,9 @@
       "Bash(grep -iE '\\\\.\\(png|jpg|svg\\)$')",
       "Bash(ls /Users/ogo/Desktop/IMG_1670*)",
       "Bash(node -e \":*)",
-      "Bash(vercel env:*)"
+      "Bash(vercel env:*)",
+      "Bash(export PATH=/Users/ogo/local/bin:$PATH)",
+      "Bash(vercel ls:*)"
     ]
   }
 }

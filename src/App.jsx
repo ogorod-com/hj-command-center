@@ -195,6 +195,17 @@ function Dashboard(){
   const[newEmail,setNewEmail]=useState("");
   const[emailError,setEmailError]=useState("");
   const[accessMsg,setAccessMsg]=useState("");
+  const[showChangePw,setShowChangePw]=useState(false);
+  const[pwCurrent,setPwCurrent]=useState("");
+  const[pwNew,setPwNew]=useState("");
+  const[pwConfirm,setPwConfirm]=useState("");
+  const[pwError,setPwError]=useState("");
+  const[pwSuccess,setPwSuccess]=useState("");
+  const[pwLoading,setPwLoading]=useState(false);
+  const handleChangePw=async()=>{setPwError("");setPwSuccess("");if(!pwCurrent||!pwNew)return setPwError("Fill in all fields");if(pwNew.length<6)return setPwError("Min 6 characters");if(pwNew!==pwConfirm)return setPwError("Passwords don't match");setPwLoading(true);try{const r=await fetch("/api/auth/change-password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({currentPassword:pwCurrent,newPassword:pwNew})});const d=await r.json();if(!r.ok){setPwError(d.error);setPwLoading(false);return;}setPwSuccess(d.message);setPwCurrent("");setPwNew("");setPwConfirm("");setPwLoading(false);}catch{setPwError("Connection error");setPwLoading(false);}};
+  const[resetEmail,setResetEmail]=useState("");
+  const[resetPw,setResetPw]=useState("");
+  const handleResetPw=async(email)=>{const newPw=prompt("Enter new password for "+email+" (min 6 chars):");if(!newPw||newPw.length<6){alert("Password must be at least 6 characters");return;}try{const r=await fetch("/api/auth/change-password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({targetEmail:email,newPassword:newPw})});const d=await r.json();if(r.ok)setAccessMsg(`Password reset for ${email}. Share the new password privately.`);else setAccessMsg(d.error);}catch{setAccessMsg("Failed to reset password");}};
   useEffect(()=>{if(isAdmin)fetch("/api/auth/users").then(r=>r.json()).then(d=>{if(d.users)setServerUsers(d.users)}).catch(()=>{});},[isAdmin]);
   const addAllowedEmail=async()=>{setEmailError("");setAccessMsg("");if(!newEmail.trim()||!newEmail.includes("@"))return;if(!newEmail.trim().toLowerCase().endsWith("@hj.fit")){setEmailError("Only @hj.fit emails allowed");return;}try{const res=await fetch("/api/auth/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:newEmail.trim().toLowerCase()})});const d=await res.json();if(!res.ok){setEmailError(d.error);return;}setAccessMsg(`User added. Temp password: ${d.tempPassword}. Update AUTH_USERS env var in Vercel and redeploy.`);setNewEmail("");fetch("/api/auth/users").then(r=>r.json()).then(d=>{if(d.users)setServerUsers(d.users)});}catch{setEmailError("Failed to add user");}};
   const removeAllowedEmail=async(e)=>{if(e===currentEmail)return;try{const res=await fetch("/api/auth/users",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:e})});const d=await res.json();if(d.ok){setAccessMsg("User removed. Update AUTH_USERS env var in Vercel and redeploy.");fetch("/api/auth/users").then(r=>r.json()).then(d=>{if(d.users)setServerUsers(d.users)});}}catch{}};
@@ -333,6 +344,7 @@ function Dashboard(){
             <div style={{display:"flex",gap:6,justifyContent:"flex-end",flexWrap:"wrap",alignItems:"center"}}>
               {critIssues.length>0&&<div onClick={()=>setTab("issues")} style={{background:"rgba(239,68,68,0.2)",backdropFilter:"blur(8px)",border:"1px solid rgba(239,68,68,0.4)",borderRadius:20,padding:"3px 10px",display:"inline-flex",alignItems:"center",gap:5,fontSize:11,fontWeight:600,cursor:"pointer"}}><div className="pulse" style={{width:6,height:6,borderRadius:"50%",background:"#FCA5A5"}}/><span style={{color:"#FEE2E2"}}>{critIssues.length} Critical</span></div>}
               {overdueCount>0&&<div onClick={()=>setTab("timeline")} style={{background:"rgba(249,115,22,0.2)",border:"1px solid rgba(249,115,22,0.4)",borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:600,color:"#FFEDD5",cursor:"pointer"}}>{overdueCount} Overdue</div>}
+              <button onClick={()=>setShowChangePw(true)} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:20,padding:"3px 8px",fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.7)",cursor:"pointer",fontFamily:"'Inter',sans-serif"}}>Change Password</button>
               <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.8)",cursor:"pointer",fontFamily:"'Inter',sans-serif"}}>{currentEmail.split("@")[0]} &middot; Sign Out</button>
             </div>
           </div>
@@ -343,6 +355,27 @@ function Dashboard(){
           ))}
         </div>
       </div>
+
+      {/* ═══ CHANGE PASSWORD MODAL ═══ */}
+      {showChangePw&&(
+        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:20}} onClick={()=>{setShowChangePw(false);setPwError("");setPwSuccess("");}}>
+          <div style={{background:"#fff",borderRadius:16,padding:"32px 28px",maxWidth:400,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.2)"}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:18,fontWeight:800,color:"#1E293B",marginBottom:4}}>Change Password</div>
+            <div style={{fontSize:12,color:"#94A3B8",marginBottom:20}}>Logged in as {currentEmail}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <div><div style={{fontSize:12,fontWeight:600,color:"#64748B",marginBottom:4}}>Current Password</div><input type="password" value={pwCurrent} onChange={e=>setPwCurrent(e.target.value)} style={inputS}/></div>
+              <div><div style={{fontSize:12,fontWeight:600,color:"#64748B",marginBottom:4}}>New Password</div><input type="password" value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="Min 6 characters" style={inputS}/></div>
+              <div><div style={{fontSize:12,fontWeight:600,color:"#64748B",marginBottom:4}}>Confirm New Password</div><input type="password" value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} style={inputS} onKeyDown={e=>e.key==="Enter"&&handleChangePw()}/></div>
+              {pwError&&<div style={{background:"#FEF2F2",border:"1px solid #FECACA",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#DC2626",fontWeight:500}}>{pwError}</div>}
+              {pwSuccess&&<div style={{background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#166534",fontWeight:500}}>{pwSuccess}</div>}
+              <div style={{display:"flex",gap:10,marginTop:4}}>
+                <button onClick={handleChangePw} disabled={pwLoading} style={{...btnPrimary,flex:1,opacity:pwLoading?.5:1}}>{pwLoading?"Updating...":"Change Password"}</button>
+                <button onClick={()=>{setShowChangePw(false);setPwError("");setPwSuccess("");}} style={{...btnPrimary,flex:1,background:"#E2E8F0",color:"#64748B"}}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{padding:"20px 24px",maxWidth:1000,margin:"0 auto"}}>
 
@@ -798,6 +831,7 @@ function Dashboard(){
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:8}}>
                       <span style={{fontSize:10,fontWeight:700,color:"#22C55E",background:"#F0FDF4",padding:"3px 10px",borderRadius:10}}>Active</span>
+                      {!isMe&&<button onClick={()=>handleResetPw(u.email)} style={{background:"#FFFBEB",border:"none",borderRadius:8,padding:"4px 10px",color:"#92400E",cursor:"pointer",fontSize:11,fontWeight:600}}>Reset PW</button>}
                       {!isMe&&<button onClick={()=>removeAllowedEmail(u.email)} style={{background:"#FEF2F2",border:"none",borderRadius:8,padding:"4px 10px",color:"#EF4444",cursor:"pointer",fontSize:11,fontWeight:600}}>Remove</button>}
                     </div>
                   </div>
