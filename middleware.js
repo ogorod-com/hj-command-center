@@ -91,8 +91,14 @@ export default async function middleware(request) {
   if (PUBLIC_PATHS.some(p => url.pathname.startsWith(p))) return;
   if (url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|woff|woff2|ttf|map)$/)) return;
 
-  // Check JWT cookie
-  const token = request.cookies?.get("hj_token")?.value;
+  // Parse cookies from header (standard Web API — no .cookies helper outside Next.js)
+  const cookieHeader = request.headers.get("cookie") || "";
+  const cookies = {};
+  cookieHeader.split(";").forEach(c => {
+    const [k, ...v] = c.trim().split("=");
+    if (k) cookies[k.trim()] = v.join("=");
+  });
+  const token = cookies.hj_token;
   if (!token) {
     return new Response(getLoginHTML(), {
       status: 200,
