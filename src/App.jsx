@@ -1,5 +1,159 @@
 import { useState, useRef, useEffect } from "react";
 
+/* ═══════════════════════════════════════════
+   AUTH SYSTEM
+   ═══════════════════════════════════════════ */
+const DEFAULT_ADMINS = ["aogorodnikov@herosjourney.com"];
+
+async function hashPassword(pw) {
+  const data = new TextEncoder().encode(pw);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function AuthGate({ children }) {
+  const [authState, setAuthState] = useState("loading"); // loading | setup | login | authed
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [error, setError] = useState("");
+  const [showPw, setShowPw] = useState(false);
+
+  useEffect(() => {
+    const session = sessionStorage.getItem("hj_session");
+    const hasSetup = localStorage.getItem("hj_auth_setup");
+    if (session) {
+      setAuthState("authed");
+    } else if (hasSetup) {
+      setAuthState("login");
+    } else {
+      setAuthState("setup");
+    }
+  }, []);
+
+  const getAllowedEmails = () => {
+    try {
+      const saved = localStorage.getItem("hj_allowed_emails");
+      return saved ? JSON.parse(saved) : DEFAULT_ADMINS;
+    } catch { return DEFAULT_ADMINS; }
+  };
+
+  const handleSetup = async () => {
+    setError("");
+    if (!email.trim()) return setError("Email required");
+    if (!password || password.length < 6) return setError("Password must be at least 6 characters");
+    if (password !== confirmPw) return setError("Passwords don't match");
+
+    const emailLower = email.trim().toLowerCase();
+    const pwHash = await hashPassword(password);
+
+    // Save auth config
+    const users = { [emailLower]: { hash: pwHash, role: "admin", name: "Admin" } };
+    localStorage.setItem("hj_users", JSON.stringify(users));
+    localStorage.setItem("hj_allowed_emails", JSON.stringify([emailLower]));
+    localStorage.setItem("hj_auth_setup", "true");
+
+    // Auto-login
+    sessionStorage.setItem("hj_session", JSON.stringify({ email: emailLower, role: "admin" }));
+    setAuthState("authed");
+  };
+
+  const handleLogin = async () => {
+    setError("");
+    if (!email.trim() || !password) return setError("Email and password required");
+
+    const emailLower = email.trim().toLowerCase();
+    const allowed = getAllowedEmails();
+
+    if (!allowed.includes(emailLower)) return setError("Access denied. This email is not authorized.");
+
+    const users = JSON.parse(localStorage.getItem("hj_users") || "{}");
+    const user = users[emailLower];
+
+    if (!user) {
+      // First login for this allowed email — create their password
+      if (password.length < 6) return setError("Create a password (min 6 characters)");
+      if (confirmPw !== undefined && confirmPw !== "" && password !== confirmPw) return setError("Passwords don't match");
+
+      const pwHash = await hashPassword(password);
+      users[emailLower] = { hash: pwHash, role: "member", name: emailLower.split("@")[0] };
+      localStorage.setItem("hj_users", JSON.stringify(users));
+      sessionStorage.setItem("hj_session", JSON.stringify({ email: emailLower, role: "member" }));
+      setAuthState("authed");
+      return;
+    }
+
+    const pwHash = await hashPassword(password);
+    if (pwHash !== user.hash) return setError("Incorrect password");
+
+    sessionStorage.setItem("hj_session", JSON.stringify({ email: emailLower, role: user.role }));
+    setAuthState("authed");
+  };
+
+  const inputS = { background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: "12px 16px", color: "#1E293B", fontSize: 14, fontFamily: "'Inter',sans-serif", width: "100%", outline: "none" };
+  const btnP = { background: "#7C3AED", border: "none", borderRadius: 10, padding: "12px 20px", color: "#fff", cursor: "pointer", fontSize: 14, fontFamily: "'Inter',sans-serif", fontWeight: 700, width: "100%", letterSpacing: "0.02em" };
+
+  if (authState === "loading") return null;
+  if (authState === "authed") return children;
+
+  const isSetup = authState === "setup";
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #7C3AED 0%, #A78BFA 30%, #C4B5FD 60%, #F5F3FF 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter','system-ui',sans-serif", padding: 20 }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');*{box-sizing:border-box;margin:0;padding:0}input:focus{border-color:#7C3AED !important;box-shadow:0 0 0 3px rgba(124,58,237,0.15) !important}`}</style>
+      <div style={{ background: "#fff", borderRadius: 20, padding: "40px 36px", maxWidth: 420, width: "100%", boxShadow: "0 20px 60px rgba(124,58,237,0.2)" }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <img src="/hj-logo.png" alt="Hero's Journey" style={{ height: 48, marginBottom: 16 }} />
+          <div style={{ fontSize: 22, fontWeight: 900, color: "#1E293B", marginBottom: 4 }}>
+            {isSetup ? "Set Up Your Account" : "Sign In"}
+          </div>
+          <div style={{ fontSize: 13, color: "#94A3B8", fontWeight: 500 }}>
+            {isSetup ? "Create admin access for the Command Center" : "225 Fifth Avenue Construction Command Center"}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Email</div>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@herosjourney.com" style={inputS} onKeyDown={e => e.key === "Enter" && (isSetup ? handleSetup() : handleLogin())} />
+          </div>
+
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>
+              {isSetup ? "Create Password" : "Password"}
+            </div>
+            <div style={{ position: "relative" }}>
+              <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder={isSetup ? "Min 6 characters" : "Enter password"} style={inputS} onKeyDown={e => e.key === "Enter" && (isSetup ? handleSetup() : handleLogin())} />
+              <button onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>{showPw ? "Hide" : "Show"}</button>
+            </div>
+          </div>
+
+          {isSetup && (
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Confirm Password</div>
+              <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="Re-enter password" style={inputS} onKeyDown={e => e.key === "Enter" && handleSetup()} />
+            </div>
+          )}
+
+          {error && (
+            <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#DC2626", fontWeight: 500 }}>{error}</div>
+          )}
+
+          <button onClick={isSetup ? handleSetup : handleLogin} style={btnP}>
+            {isSetup ? "Create Account & Enter" : "Sign In"}
+          </button>
+        </div>
+
+        {!isSetup && (
+          <div style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "#94A3B8" }}>
+            Access restricted to authorized team members only.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── PARTY CONSTANTS ─── */
 const PARTIES = {hj:"HJ Team",lawrence:"Lawrence Group",oleary:"O'Leary",meyers:"Meyers+",landlord:"Landlord (CIM)",wesbuild:"Wesbuild",external:"External"};
 const PARTY_COLORS = {hj:"#7C3AED",lawrence:"#3B82F6",oleary:"#F59E0B",meyers:"#06B6D4",landlord:"#EF4444",wesbuild:"#22C55E",external:"#94A3B8"};
@@ -160,7 +314,11 @@ function usePersistedState(key, defaultVal) {
 /* ═══════════════════════════════════════════
    APP — HJ Brand Design
    ═══════════════════════════════════════════ */
-export default function App(){
+function Dashboard(){
+  /* Auth context */
+  const session = JSON.parse(sessionStorage.getItem("hj_session") || "{}");
+  const isAdmin = session.role === "admin";
+  const currentEmail = session.email || "";
   const[tab,setTab]=usePersistedState("hj_tab","overview");
   const[phases,setPhases]=usePersistedState("hj_phases_v2",initPhases);
   const[vendors]=useState(initVendors);
@@ -180,6 +338,13 @@ export default function App(){
   const[chat,setChat]=usePersistedState("hj_chat",[{role:"assistant",content:"Construction Command Center online. All data loaded from O'Leary Smartsheet and Wesbuild estimates. Use the tabs above to review timeline, vendors, budget, issues, and daily log."}]);
   const[msg,setMsg]=useState("");
   const chatRef=useRef(null);
+
+  /* Access management */
+  const[allowedEmails,setAllowedEmails]=useState(()=>{try{return JSON.parse(localStorage.getItem("hj_allowed_emails")||"[]")}catch{return[]}});
+  const[newEmail,setNewEmail]=useState("");
+  const addAllowedEmail=()=>{if(!newEmail.trim()||!newEmail.includes("@"))return;const e=newEmail.trim().toLowerCase();if(allowedEmails.includes(e))return;const updated=[...allowedEmails,e];setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));setNewEmail("");};
+  const removeAllowedEmail=(e)=>{if(e===currentEmail)return;const updated=allowedEmails.filter(x=>x!==e);setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));const users=JSON.parse(localStorage.getItem("hj_users")||"{}");delete users[e];localStorage.setItem("hj_users",JSON.stringify(users));};
+  const handleLogout=()=>{sessionStorage.removeItem("hj_session");window.location.reload();};
 
   useEffect(()=>{chatRef.current?.scrollIntoView({behavior:"smooth"});},[chat]);
 
@@ -237,6 +402,7 @@ export default function App(){
     {id:"budget",label:"Budget"},
     {id:"log",label:`Log (${logs.length})`},
     {id:"ai",label:"Ask AI"},
+    ...(isAdmin?[{id:"access",label:"Access"}]:[]),
   ];
 
   const LOG_TAGS=["general","decision","blocker","call","site-visit","finance"];
@@ -310,9 +476,10 @@ export default function App(){
                 </div>
               ))}
             </div>
-            <div style={{display:"flex",gap:6,justifyContent:"flex-end",flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:6,justifyContent:"flex-end",flexWrap:"wrap",alignItems:"center"}}>
               {critIssues.length>0&&<div onClick={()=>setTab("issues")} style={{background:"rgba(239,68,68,0.2)",backdropFilter:"blur(8px)",border:"1px solid rgba(239,68,68,0.4)",borderRadius:20,padding:"3px 10px",display:"inline-flex",alignItems:"center",gap:5,fontSize:11,fontWeight:600,cursor:"pointer"}}><div className="pulse" style={{width:6,height:6,borderRadius:"50%",background:"#FCA5A5"}}/><span style={{color:"#FEE2E2"}}>{critIssues.length} Critical</span></div>}
               {overdueCount>0&&<div onClick={()=>setTab("timeline")} style={{background:"rgba(249,115,22,0.2)",border:"1px solid rgba(249,115,22,0.4)",borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:600,color:"#FFEDD5",cursor:"pointer"}}>{overdueCount} Overdue</div>}
+              <button onClick={handleLogout} style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.8)",cursor:"pointer",fontFamily:"'Inter',sans-serif"}}>{currentEmail.split("@")[0]} &middot; Sign Out</button>
             </div>
           </div>
         </div>
@@ -745,7 +912,67 @@ export default function App(){
             </div>
           </div>
         )}
+
+        {/* ═══ ACCESS MANAGEMENT ═══ */}
+        {tab==="access"&&isAdmin&&(
+          <div className="fi">
+            <div style={card}>
+              <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:4}}>ACCESS MANAGEMENT</div>
+              <div style={{fontSize:12,color:"#94A3B8",marginBottom:16}}>Manage who can access the Construction Command Center. New users will create their password on first login.</div>
+
+              <div style={{display:"flex",gap:10,marginBottom:20}}>
+                <input value={newEmail} onChange={e=>setNewEmail(e.target.value)} placeholder="email@herosjourney.com" style={inputS} onKeyDown={e=>e.key==="Enter"&&addAllowedEmail()}/>
+                <button onClick={addAllowedEmail} disabled={!newEmail.includes("@")} style={{...btnPrimary,opacity:newEmail.includes("@")?1:.4,whiteSpace:"nowrap",flexShrink:0}}>Add Email</button>
+              </div>
+
+              <div style={{fontSize:11,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em",marginBottom:10}}>AUTHORIZED USERS ({allowedEmails.length})</div>
+              {allowedEmails.map(e=>{
+                const users=JSON.parse(localStorage.getItem("hj_users")||"{}");
+                const user=users[e];
+                const hasAccount=!!user;
+                const isMe=e===currentEmail;
+                return(
+                  <div key={e} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderBottom:"1px solid #F1F5F9",borderRadius:8}}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{width:32,height:32,borderRadius:"50%",background:isMe?"#7C3AED":"#E2E8F0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:isMe?"#fff":"#64748B"}}>{e[0].toUpperCase()}</div>
+                      <div>
+                        <div style={{fontSize:13,fontWeight:600,color:"#1E293B"}}>{e}</div>
+                        <div style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>
+                          {isMe?"You (Admin)":user?.role==="admin"?"Admin":hasAccount?"Active":"Invited -- pending first login"}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:10,fontWeight:700,color:hasAccount?"#22C55E":"#EAB308",background:hasAccount?"#F0FDF4":"#FFFBEB",padding:"3px 10px",borderRadius:10}}>{hasAccount?"Active":"Pending"}</span>
+                      {!isMe&&<button onClick={()=>removeAllowedEmail(e)} style={{background:"#FEF2F2",border:"none",borderRadius:8,padding:"4px 10px",color:"#EF4444",cursor:"pointer",fontSize:11,fontWeight:600}}>Remove</button>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{...card,marginTop:14,background:"#FFFBEB",border:"1px solid #FDE68A"}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#92400E",marginBottom:8}}>How it works</div>
+              <div style={{fontSize:12,color:"#92400E",lineHeight:1.7}}>
+                1. Add an email address above to grant access.<br/>
+                2. Share the Command Center URL with the team member.<br/>
+                3. On their first visit, they'll create their own password.<br/>
+                4. After that, they log in with email + password.<br/>
+                5. Only you (admin) can add or remove users.
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+/* ═══ EXPORT WITH AUTH GATE ═══ */
+export default function App() {
+  return (
+    <AuthGate>
+      <Dashboard />
+    </AuthGate>
   );
 }
