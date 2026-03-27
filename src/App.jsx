@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
    AUTH SYSTEM
    ═══════════════════════════════════════════ */
 const ALLOWED_DOMAIN = "hj.fit";
-const DEFAULT_ADMINS = ["aogorodnikov@hj.fit"];
+const DEFAULT_ADMINS = ["andrey@hj.fit"];
 function isValidDomain(email) { return email.toLowerCase().endsWith("@" + ALLOWED_DOMAIN); }
 
 async function hashPassword(pw) {
