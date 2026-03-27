@@ -3,7 +3,9 @@ import { useState, useRef, useEffect } from "react";
 /* ═══════════════════════════════════════════
    AUTH SYSTEM
    ═══════════════════════════════════════════ */
-const DEFAULT_ADMINS = ["aogorodnikov@herosjourney.com"];
+const ALLOWED_DOMAIN = "hj.fit";
+const DEFAULT_ADMINS = ["aogorodnikov@hj.fit"];
+function isValidDomain(email) { return email.toLowerCase().endsWith("@" + ALLOWED_DOMAIN); }
 
 async function hashPassword(pw) {
   const data = new TextEncoder().encode(pw);
@@ -41,6 +43,7 @@ function AuthGate({ children }) {
   const handleSetup = async () => {
     setError("");
     if (!email.trim()) return setError("Email required");
+    if (!isValidDomain(email.trim())) return setError(`Only @${ALLOWED_DOMAIN} emails are allowed`);
     if (!password || password.length < 6) return setError("Password must be at least 6 characters");
     if (password !== confirmPw) return setError("Passwords don't match");
 
@@ -61,6 +64,7 @@ function AuthGate({ children }) {
   const handleLogin = async () => {
     setError("");
     if (!email.trim() || !password) return setError("Email and password required");
+    if (!isValidDomain(email.trim())) return setError(`Only @${ALLOWED_DOMAIN} emails are allowed`);
 
     const emailLower = email.trim().toLowerCase();
     const allowed = getAllowedEmails();
@@ -115,7 +119,7 @@ function AuthGate({ children }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Email</div>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@herosjourney.com" style={inputS} onKeyDown={e => e.key === "Enter" && (isSetup ? handleSetup() : handleLogin())} />
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@hj.fit" style={inputS} onKeyDown={e => e.key === "Enter" && (isSetup ? handleSetup() : handleLogin())} />
           </div>
 
           <div>
@@ -342,7 +346,8 @@ function Dashboard(){
   /* Access management */
   const[allowedEmails,setAllowedEmails]=useState(()=>{try{return JSON.parse(localStorage.getItem("hj_allowed_emails")||"[]")}catch{return[]}});
   const[newEmail,setNewEmail]=useState("");
-  const addAllowedEmail=()=>{if(!newEmail.trim()||!newEmail.includes("@"))return;const e=newEmail.trim().toLowerCase();if(allowedEmails.includes(e))return;const updated=[...allowedEmails,e];setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));setNewEmail("");};
+  const[emailError,setEmailError]=useState("");
+  const addAllowedEmail=()=>{setEmailError("");if(!newEmail.trim()||!newEmail.includes("@"))return;if(!isValidDomain(newEmail.trim())){setEmailError(`Only @${ALLOWED_DOMAIN} emails allowed`);return;}const e=newEmail.trim().toLowerCase();if(allowedEmails.includes(e)){setEmailError("Email already added");return;}const updated=[...allowedEmails,e];setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));setNewEmail("");};
   const removeAllowedEmail=(e)=>{if(e===currentEmail)return;const updated=allowedEmails.filter(x=>x!==e);setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));const users=JSON.parse(localStorage.getItem("hj_users")||"{}");delete users[e];localStorage.setItem("hj_users",JSON.stringify(users));};
   const handleLogout=()=>{sessionStorage.removeItem("hj_session");window.location.reload();};
 
@@ -918,12 +923,13 @@ function Dashboard(){
           <div className="fi">
             <div style={card}>
               <div style={{fontSize:12,fontWeight:700,color:"#7C3AED",letterSpacing:"0.05em",marginBottom:4}}>ACCESS MANAGEMENT</div>
-              <div style={{fontSize:12,color:"#94A3B8",marginBottom:16}}>Manage who can access the Construction Command Center. New users will create their password on first login.</div>
+              <div style={{fontSize:12,color:"#94A3B8",marginBottom:16}}>Manage who can access the Construction Command Center. Only @hj.fit emails are allowed. New users create their password on first login.</div>
 
-              <div style={{display:"flex",gap:10,marginBottom:20}}>
-                <input value={newEmail} onChange={e=>setNewEmail(e.target.value)} placeholder="email@herosjourney.com" style={inputS} onKeyDown={e=>e.key==="Enter"&&addAllowedEmail()}/>
+              <div style={{display:"flex",gap:10,marginBottom:emailError?8:20}}>
+                <input value={newEmail} onChange={e=>{setNewEmail(e.target.value);setEmailError("");}} placeholder="name@hj.fit" style={inputS} onKeyDown={e=>e.key==="Enter"&&addAllowedEmail()}/>
                 <button onClick={addAllowedEmail} disabled={!newEmail.includes("@")} style={{...btnPrimary,opacity:newEmail.includes("@")?1:.4,whiteSpace:"nowrap",flexShrink:0}}>Add Email</button>
               </div>
+              {emailError&&<div style={{background:"#FEF2F2",border:"1px solid #FECACA",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#DC2626",fontWeight:500,marginBottom:16}}>{emailError}</div>}
 
               <div style={{fontSize:11,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em",marginBottom:10}}>AUTHORIZED USERS ({allowedEmails.length})</div>
               {allowedEmails.map(e=>{
