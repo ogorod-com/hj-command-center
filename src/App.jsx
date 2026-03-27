@@ -1,163 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 
-/* ═══════════════════════════════════════════
-   AUTH SYSTEM
-   ═══════════════════════════════════════════ */
-const ALLOWED_DOMAIN = "hj.fit";
-const DEFAULT_ADMINS = ["andrey@hj.fit"];
-function isValidDomain(email) { return email.toLowerCase().endsWith("@" + ALLOWED_DOMAIN); }
-
-async function hashPassword(pw) {
-  const data = new TextEncoder().encode(pw);
-  const buf = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function AuthGate({ children }) {
-  const [authState, setAuthState] = useState("loading"); // loading | setup | login | authed
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPw, setConfirmPw] = useState("");
-  const [error, setError] = useState("");
-  const [showPw, setShowPw] = useState(false);
-
-  useEffect(() => {
-    const session = sessionStorage.getItem("hj_session");
-    const hasSetup = localStorage.getItem("hj_auth_setup");
-    if (session) {
-      setAuthState("authed");
-    } else if (hasSetup) {
-      setAuthState("login");
-    } else {
-      setAuthState("setup");
-    }
-  }, []);
-
-  const getAllowedEmails = () => {
-    try {
-      const saved = localStorage.getItem("hj_allowed_emails");
-      return saved ? JSON.parse(saved) : DEFAULT_ADMINS;
-    } catch { return DEFAULT_ADMINS; }
-  };
-
-  const handleSetup = async () => {
-    setError("");
-    if (!email.trim()) return setError("Email required");
-    if (!isValidDomain(email.trim())) return setError(`Only @${ALLOWED_DOMAIN} emails are allowed`);
-    if (!password || password.length < 6) return setError("Password must be at least 6 characters");
-    if (password !== confirmPw) return setError("Passwords don't match");
-
-    const emailLower = email.trim().toLowerCase();
-    const pwHash = await hashPassword(password);
-
-    // Save auth config
-    const users = { [emailLower]: { hash: pwHash, role: "admin", name: "Admin" } };
-    localStorage.setItem("hj_users", JSON.stringify(users));
-    localStorage.setItem("hj_allowed_emails", JSON.stringify([emailLower]));
-    localStorage.setItem("hj_auth_setup", "true");
-
-    // Auto-login
-    sessionStorage.setItem("hj_session", JSON.stringify({ email: emailLower, role: "admin" }));
-    setAuthState("authed");
-  };
-
-  const handleLogin = async () => {
-    setError("");
-    if (!email.trim() || !password) return setError("Email and password required");
-    if (!isValidDomain(email.trim())) return setError(`Only @${ALLOWED_DOMAIN} emails are allowed`);
-
-    const emailLower = email.trim().toLowerCase();
-    const allowed = getAllowedEmails();
-
-    if (!allowed.includes(emailLower)) return setError("Access denied. This email is not authorized.");
-
-    const users = JSON.parse(localStorage.getItem("hj_users") || "{}");
-    const user = users[emailLower];
-
-    if (!user) {
-      // First login for this allowed email — create their password
-      if (password.length < 6) return setError("Create a password (min 6 characters)");
-      if (confirmPw !== undefined && confirmPw !== "" && password !== confirmPw) return setError("Passwords don't match");
-
-      const pwHash = await hashPassword(password);
-      users[emailLower] = { hash: pwHash, role: "member", name: emailLower.split("@")[0] };
-      localStorage.setItem("hj_users", JSON.stringify(users));
-      sessionStorage.setItem("hj_session", JSON.stringify({ email: emailLower, role: "member" }));
-      setAuthState("authed");
-      return;
-    }
-
-    const pwHash = await hashPassword(password);
-    if (pwHash !== user.hash) return setError("Incorrect password");
-
-    sessionStorage.setItem("hj_session", JSON.stringify({ email: emailLower, role: user.role }));
-    setAuthState("authed");
-  };
-
-  const inputS = { background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: "12px 16px", color: "#1E293B", fontSize: 14, fontFamily: "'Inter',sans-serif", width: "100%", outline: "none" };
-  const btnP = { background: "#7C3AED", border: "none", borderRadius: 10, padding: "12px 20px", color: "#fff", cursor: "pointer", fontSize: 14, fontFamily: "'Inter',sans-serif", fontWeight: 700, width: "100%", letterSpacing: "0.02em" };
-
-  if (authState === "loading") return null;
-  if (authState === "authed") return children;
-
-  const isSetup = authState === "setup";
-
-  return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #7C3AED 0%, #A78BFA 30%, #C4B5FD 60%, #F5F3FF 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter','system-ui',sans-serif", padding: 20 }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');*{box-sizing:border-box;margin:0;padding:0}input:focus{border-color:#7C3AED !important;box-shadow:0 0 0 3px rgba(124,58,237,0.15) !important}`}</style>
-      <div style={{ background: "#fff", borderRadius: 20, padding: "40px 36px", maxWidth: 420, width: "100%", boxShadow: "0 20px 60px rgba(124,58,237,0.2)" }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <img src="/hj-logo.png" alt="Hero's Journey" style={{ height: 48, marginBottom: 16 }} />
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#1E293B", marginBottom: 4 }}>
-            {isSetup ? "Set Up Your Account" : "Sign In"}
-          </div>
-          <div style={{ fontSize: 13, color: "#94A3B8", fontWeight: 500 }}>
-            {isSetup ? "Create admin access for the Command Center" : "225 Fifth Avenue Construction Command Center"}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Email</div>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@hj.fit" style={inputS} onKeyDown={e => e.key === "Enter" && (isSetup ? handleSetup() : handleLogin())} />
-          </div>
-
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>
-              {isSetup ? "Create Password" : "Password"}
-            </div>
-            <div style={{ position: "relative" }}>
-              <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder={isSetup ? "Min 6 characters" : "Enter password"} style={inputS} onKeyDown={e => e.key === "Enter" && (isSetup ? handleSetup() : handleLogin())} />
-              <button onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>{showPw ? "Hide" : "Show"}</button>
-            </div>
-          </div>
-
-          {isSetup && (
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Confirm Password</div>
-              <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="Re-enter password" style={inputS} onKeyDown={e => e.key === "Enter" && handleSetup()} />
-            </div>
-          )}
-
-          {error && (
-            <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#DC2626", fontWeight: 500 }}>{error}</div>
-          )}
-
-          <button onClick={isSetup ? handleSetup : handleLogin} style={btnP}>
-            {isSetup ? "Create Account & Enter" : "Sign In"}
-          </button>
-        </div>
-
-        {!isSetup && (
-          <div style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "#94A3B8" }}>
-            Access restricted to authorized team members only.
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 /* ─── PARTY CONSTANTS ─── */
 const PARTIES = {hj:"HJ Team",lawrence:"Lawrence Group",oleary:"O'Leary",meyers:"Meyers+",landlord:"Landlord (CIM)",wesbuild:"Wesbuild",external:"External"};
 const PARTY_COLORS = {hj:"#7C3AED",lawrence:"#3B82F6",oleary:"#F59E0B",meyers:"#06B6D4",landlord:"#EF4444",wesbuild:"#22C55E",external:"#94A3B8"};
@@ -279,8 +121,8 @@ const budgetLines = [
   {id:"b29",label:"IT & Infrastructure",low:150000,high:150000,committed:0,spent:0,category:"FF&E"},
   {id:"b30",label:"Operating Ramp-up (7-8 mo)",low:950000,high:950000,committed:0,spent:0,category:"Operating"},
   {id:"b31",label:"Corp HQ / Growth Platform",low:875000,high:875000,committed:120000,spent:85000,category:"Operating"},
-  {id:"b32",label:"O'Leary Group (Construction PM)",low:301000,high:329000,committed:329000,spent:65096,category:"Soft Costs"},
-  {id:"b33",label:"Meyers+ (MEP Engineering)",low:0,high:0,committed:0,spent:0,category:"Soft Costs"},
+  {id:"b32",label:"O'Leary Group (Construction PM)",low:301000,high:329000,committed:329000,spent:68096,category:"Soft Costs"},
+  {id:"b33",label:"Meyers+ (MEP Engineering)",low:0,high:0,committed:0,spent:7800,category:"Soft Costs"},
 ];
 
 /* ─── HELPERS ─── */
@@ -319,8 +161,13 @@ function usePersistedState(key, defaultVal) {
    APP — HJ Brand Design
    ═══════════════════════════════════════════ */
 function Dashboard(){
-  /* Auth context */
-  const session = JSON.parse(sessionStorage.getItem("hj_session") || "{}");
+  /* Auth context — loaded from server-side JWT */
+  const [session, setSession] = useState({ email: "", role: "member", name: "" });
+  useEffect(() => {
+    fetch("/api/auth/session").then(r => r.json()).then(d => {
+      if (d.ok) setSession(d.user);
+    }).catch(() => {});
+  }, []);
   const isAdmin = session.role === "admin";
   const currentEmail = session.email || "";
   const[tab,setTab]=usePersistedState("hj_tab","overview");
@@ -343,13 +190,15 @@ function Dashboard(){
   const[msg,setMsg]=useState("");
   const chatRef=useRef(null);
 
-  /* Access management */
-  const[allowedEmails,setAllowedEmails]=useState(()=>{try{return JSON.parse(localStorage.getItem("hj_allowed_emails")||"[]")}catch{return[]}});
+  /* Access management — server-side */
+  const[serverUsers,setServerUsers]=useState([]);
   const[newEmail,setNewEmail]=useState("");
   const[emailError,setEmailError]=useState("");
-  const addAllowedEmail=()=>{setEmailError("");if(!newEmail.trim()||!newEmail.includes("@"))return;if(!isValidDomain(newEmail.trim())){setEmailError(`Only @${ALLOWED_DOMAIN} emails allowed`);return;}const e=newEmail.trim().toLowerCase();if(allowedEmails.includes(e)){setEmailError("Email already added");return;}const updated=[...allowedEmails,e];setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));setNewEmail("");};
-  const removeAllowedEmail=(e)=>{if(e===currentEmail)return;const updated=allowedEmails.filter(x=>x!==e);setAllowedEmails(updated);localStorage.setItem("hj_allowed_emails",JSON.stringify(updated));const users=JSON.parse(localStorage.getItem("hj_users")||"{}");delete users[e];localStorage.setItem("hj_users",JSON.stringify(users));};
-  const handleLogout=()=>{sessionStorage.removeItem("hj_session");window.location.reload();};
+  const[accessMsg,setAccessMsg]=useState("");
+  useEffect(()=>{if(isAdmin)fetch("/api/auth/users").then(r=>r.json()).then(d=>{if(d.users)setServerUsers(d.users)}).catch(()=>{});},[isAdmin]);
+  const addAllowedEmail=async()=>{setEmailError("");setAccessMsg("");if(!newEmail.trim()||!newEmail.includes("@"))return;if(!newEmail.trim().toLowerCase().endsWith("@hj.fit")){setEmailError("Only @hj.fit emails allowed");return;}try{const res=await fetch("/api/auth/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:newEmail.trim().toLowerCase()})});const d=await res.json();if(!res.ok){setEmailError(d.error);return;}setAccessMsg(`User added. Temp password: ${d.tempPassword}. Update AUTH_USERS env var in Vercel and redeploy.`);setNewEmail("");fetch("/api/auth/users").then(r=>r.json()).then(d=>{if(d.users)setServerUsers(d.users)});}catch{setEmailError("Failed to add user");}};
+  const removeAllowedEmail=async(e)=>{if(e===currentEmail)return;try{const res=await fetch("/api/auth/users",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:e})});const d=await res.json();if(d.ok){setAccessMsg("User removed. Update AUTH_USERS env var in Vercel and redeploy.");fetch("/api/auth/users").then(r=>r.json()).then(d=>{if(d.users)setServerUsers(d.users)});}}catch{}};
+  const handleLogout=()=>{fetch("/api/auth/logout",{method:"POST"}).finally(()=>window.location.reload());};
 
   useEffect(()=>{chatRef.current?.scrollIntoView({behavior:"smooth"});},[chat]);
 
@@ -931,26 +780,25 @@ function Dashboard(){
               </div>
               {emailError&&<div style={{background:"#FEF2F2",border:"1px solid #FECACA",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#DC2626",fontWeight:500,marginBottom:16}}>{emailError}</div>}
 
-              <div style={{fontSize:11,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em",marginBottom:10}}>AUTHORIZED USERS ({allowedEmails.length})</div>
-              {allowedEmails.map(e=>{
-                const users=JSON.parse(localStorage.getItem("hj_users")||"{}");
-                const user=users[e];
-                const hasAccount=!!user;
-                const isMe=e===currentEmail;
+              {accessMsg&&<div style={{background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#166534",fontWeight:500,marginBottom:16}}>{accessMsg}</div>}
+
+              <div style={{fontSize:11,fontWeight:700,color:"#94A3B8",letterSpacing:"0.05em",marginBottom:10}}>AUTHORIZED USERS ({serverUsers.length})</div>
+              {serverUsers.map(u=>{
+                const isMe=u.email===currentEmail;
                 return(
-                  <div key={e} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderBottom:"1px solid #F1F5F9",borderRadius:8}}>
+                  <div key={u.email} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderBottom:"1px solid #F1F5F9",borderRadius:8}}>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{width:32,height:32,borderRadius:"50%",background:isMe?"#7C3AED":"#E2E8F0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:isMe?"#fff":"#64748B"}}>{e[0].toUpperCase()}</div>
+                      <div style={{width:32,height:32,borderRadius:"50%",background:isMe?"#7C3AED":"#E2E8F0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:isMe?"#fff":"#64748B"}}>{u.email[0].toUpperCase()}</div>
                       <div>
-                        <div style={{fontSize:13,fontWeight:600,color:"#1E293B"}}>{e}</div>
+                        <div style={{fontSize:13,fontWeight:600,color:"#1E293B"}}>{u.email}</div>
                         <div style={{fontSize:11,color:"#94A3B8",fontWeight:500}}>
-                          {isMe?"You (Admin)":user?.role==="admin"?"Admin":hasAccount?"Active":"Invited -- pending first login"}
+                          {isMe?"You (Admin)":u.role==="admin"?"Admin":"Member"}
                         </div>
                       </div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{fontSize:10,fontWeight:700,color:hasAccount?"#22C55E":"#EAB308",background:hasAccount?"#F0FDF4":"#FFFBEB",padding:"3px 10px",borderRadius:10}}>{hasAccount?"Active":"Pending"}</span>
-                      {!isMe&&<button onClick={()=>removeAllowedEmail(e)} style={{background:"#FEF2F2",border:"none",borderRadius:8,padding:"4px 10px",color:"#EF4444",cursor:"pointer",fontSize:11,fontWeight:600}}>Remove</button>}
+                      <span style={{fontSize:10,fontWeight:700,color:"#22C55E",background:"#F0FDF4",padding:"3px 10px",borderRadius:10}}>Active</span>
+                      {!isMe&&<button onClick={()=>removeAllowedEmail(u.email)} style={{background:"#FEF2F2",border:"none",borderRadius:8,padding:"4px 10px",color:"#EF4444",cursor:"pointer",fontSize:11,fontWeight:600}}>Remove</button>}
                     </div>
                   </div>
                 );
@@ -974,11 +822,7 @@ function Dashboard(){
   );
 }
 
-/* ═══ EXPORT WITH AUTH GATE ═══ */
-export default function App() {
-  return (
-    <AuthGate>
-      <Dashboard />
-    </AuthGate>
-  );
-}
+/* Auth is now handled server-side by Vercel Edge Middleware.
+   The login page is served by middleware.js before any React code loads.
+   No client-side auth code = nothing to hack via DevTools. */
+export default Dashboard;

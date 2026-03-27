@@ -32,7 +32,9 @@
       "Bash(sort -t/ -k4)",
       "Bash(find /Users/ogo/Desktop /Users/ogo/Downloads -maxdepth 2 -name *hj* -o -name *hero* -o -name *logo* -o -name *journey*)",
       "Bash(grep -iE '\\\\.\\(png|jpg|svg\\)$')",
-      "Bash(ls /Users/ogo/Desktop/IMG_1670*)"
+      "Bash(ls /Users/ogo/Desktop/IMG_1670*)",
+      "Bash(node -e \":*)",
+      "Bash(vercel env:*)"
     ]
   }
 }
